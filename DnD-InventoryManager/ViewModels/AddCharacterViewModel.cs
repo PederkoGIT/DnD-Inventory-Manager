@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnD_InventoryManager.Models;
+using DnD_InventoryManager.Services;
 
 namespace DnD_InventoryManager.ViewModels;
 
@@ -14,11 +15,14 @@ public partial class AddCharacterViewModel : ViewModelBase
 
     [ObservableProperty] private string selectedImagePath = "dotnet_bot.png";
 
+    private readonly DatabaseService _databaseService;
+
     public List<CharacterSizeEnum> AllSizes =>
         Enum.GetValues(typeof(CharacterSizeEnum)).Cast<CharacterSizeEnum>().ToList();
 
-    public AddCharacterViewModel()
+    public AddCharacterViewModel(DatabaseService databaseService)
     {
+        _databaseService = databaseService;
         Title = "New Character";
     }
 
@@ -44,6 +48,15 @@ public partial class AddCharacterViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(Name)) return;
 
+        var newCharacter = new Character
+        {
+            Name = Name,
+            Strength = Strength,
+            Size = SelectedSize,
+            ImagePath = selectedImagePath
+        };
+
+        await _databaseService.SaveCharacterAsync(newCharacter);
         await Shell.Current.GoToAsync("..");
     }
 }

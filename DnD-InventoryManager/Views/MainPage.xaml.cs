@@ -10,5 +10,15 @@ public partial class MainPage : ContentPage
         BindingContext = viewModel;
     }
 
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is MainViewModel vm)
+        {
+            await vm.LoadCharactersAsync();
+        }
+    }
+
     
 }

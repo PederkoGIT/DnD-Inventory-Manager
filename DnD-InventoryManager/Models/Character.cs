@@ -2,7 +2,7 @@ namespace DnD_InventoryManager.Models;
 
 public class Character
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string ImagePath { get; set; } = "/Resources/Images/dotnet_bot.png";
     public int Strength { get; set; }

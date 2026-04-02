@@ -1,4 +1,5 @@
-﻿using DnD_InventoryManager.ViewModels;
+﻿using DnD_InventoryManager.Services;
+using DnD_InventoryManager.ViewModels;
 using DnD_InventoryManager.Views;
 using Microsoft.Extensions.Logging;
 
@@ -26,7 +27,8 @@ public static class MauiProgram
 
 		builder.Services.AddTransient<AddCharacterPage>();
 		builder.Services.AddTransient<AddCharacterViewModel>();
-		
+
+		builder.Services.AddSingleton<DatabaseService>();
 		
 		return builder.Build();
 	}
