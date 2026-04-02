@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             x:Class="DnD_InventoryManager.Views.AddCharacterPage"
+             x:DataType="vm:AddCharacterViewModel"
+             Title="{Binding Title}">
+
+    <VerticalStackLayout Padding="20" Spacing="15">
+        
+        <Image Source="{Binding SelectedImagePath}" 
+               HeightRequest="150" WidthRequest="150" Aspect="AspectFill" />
+        
+        <Button Text="Vybrať obrázok" 
+                Command="{Binding PickImageCommand}" />
+
+        <Entry Placeholder="Meno postavy" 
+               Text="{Binding Name}" />
+
+        <HorizontalStackLayout Spacing="10">
+            <Label Text="Sila (Strength):" VerticalOptions="Center" />
+            <Entry Text="{Binding Strength}" Keyboard="Numeric" WidthRequest="60" />
+            <Stepper Value="{Binding Strength}" Minimum="1" Maximum="30" />
+        </HorizontalStackLayout>
+
+        <Picker Title="Veľkosť postavy"
+                ItemsSource="{Binding AllSizes}"
+                SelectedItem="{Binding SelectedSize}" />
+
+        <Button Text="Uložiť postavu" 
+                Command="{Binding SaveCommand}" 
+                Margin="0,20,0,0" />
+
+    </VerticalStackLayout>
+</ContentPage>

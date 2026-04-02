@@ -1,9 +1,12 @@
-﻿namespace DnD_InventoryManager;
+﻿using DnD_InventoryManager.Views;
+
+namespace DnD_InventoryManager;
 
 public partial class AppShell : Shell
 {
     public AppShell()
     {
         InitializeComponent();
+        Routing.RegisterRoute(nameof(AddCharacterPage), typeof(AddCharacterPage));
     }
 }
