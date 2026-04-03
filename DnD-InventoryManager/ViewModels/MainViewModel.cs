@@ -41,7 +41,20 @@ public partial class MainViewModel : ViewModelBase
             Characters.Add(c);
 
         IsBusy = false;
+    }
 
+    [RelayCommand]
+    public async Task GoToCharacterDetailAsync(Character selectedCharacter)
+    {
+        if (selectedCharacter == null)
+        {
+            return;
+        }
+
+        await Shell.Current.GoToAsync(nameof(CharacterDetailPage), new Dictionary<string, object>
+        {
+            { "Character", selectedCharacter }
+        });
     }
 
 }

@@ -5,21 +5,40 @@
              xmlns:models="clr-namespace:DnD_InventoryManager.Models" 
              x:DataType="vm:MainViewModel" 
              Title="{Binding Title}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray900}}"
              x:Class="DnD_InventoryManager.Views.MainPage">
 
     <Grid RowDefinitions="*, Auto">
-        
         <CollectionView ItemsSource="{Binding Characters}" Grid.Row="0">
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Character"> 
-                    <Label Text="{Binding Name}" Padding="20" FontSize="Large" />
+                <DataTemplate x:DataType="models:Character">
+                    <Border Margin="10,5" Padding="15" 
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" 
+                            StrokeThickness="1"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=GoToCharacterDetailCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding Name}" 
+                                   FontAttributes="Bold" FontSize="18" 
+                                   TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+                            <Label Text="{Binding CarryingCapacity, StringFormat='Capacity: {0} lb'}" 
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                        </VerticalStackLayout>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Button Text="Add Character" 
-                Grid.Row="1"
-                Command="{Binding GoToAddCharacterCommand}"
-                Margin="20" />
+        <Button Text="Add Character" Grid.Row="1"
+                Command="{Binding GoToAddCharacterCommand}" Margin="20" />
     </Grid>
 </ContentPage>

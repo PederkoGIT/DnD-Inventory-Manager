@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             x:Class="DnD_InventoryManager.Views.CharacterDetailPage"
+             x:DataType="vm:CharacterDetailViewModel"
+             BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray900}}"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="25" Spacing="25">
+            <Border HorizontalOptions="Center" HeightRequest="160" WidthRequest="160"
+                    StrokeThickness="3" Stroke="{StaticResource PrimaryDark}">
+                <Border.StrokeShape><RoundRectangle CornerRadius="80" /></Border.StrokeShape>
+                <Image Source="{Binding Character.ImagePath}" Aspect="AspectFill" />
+            </Border>
+
+            <Label Text="{Binding Character.Name}" Style="{StaticResource Headline}" />
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="15" RowSpacing="15">
+                <Border Grid.Row="0" Grid.Column="0" Padding="15"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray900}}"
+                        Stroke="{StaticResource Gray200}">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="STR" TextColor="{StaticResource SecondaryDarkText}" HorizontalOptions="Center" FontAttributes="Bold" />
+                        <Label Text="{Binding Character.Strength}" FontSize="28" TextColor="{StaticResource Primary}" HorizontalOptions="Center" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="1" Padding="15"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray900}}"
+                        Stroke="{StaticResource Gray200}">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="Size" TextColor="{StaticResource SecondaryDarkText}" HorizontalOptions="Center" FontAttributes="Bold" />
+                        <Label Text="{Binding Character.Size}" TextColor="{StaticResource Primary}" HorizontalOptions="Center" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Row="1" Grid.ColumnSpan="2" Padding="18"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Tertiary}}">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                        <Label Text="Carry Capacity:" TextColor="White" FontSize="16" />
+                        <Label Text="{Binding Character.CarryingCapacity, StringFormat='{0} lb'}" TextColor="White" FontSize="22" FontAttributes="Bold" />
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
