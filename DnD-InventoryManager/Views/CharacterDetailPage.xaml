@@ -10,6 +10,8 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Edit" 
                      Command="{Binding GoToEditCharacterCommand}" />
+        <ToolbarItem Text="Delete"
+                     Command="{Binding DeleteCharacterCommand}"/>
     </ContentPage.ToolbarItems>
 
     <ScrollView>

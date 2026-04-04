@@ -56,6 +56,25 @@ public partial class CharacterDetailViewModel : ViewModelBase
             { "Character", character }
         });
     }
+
+
+    [RelayCommand]
+    private async Task DeleteCharacterAsync()
+    {
+        if (Character == null || Character.Id == 0)
+        {
+            return;
+        }
+        
+        bool answer = await Shell.Current.DisplayAlertAsync("Delete Character", "Are you sure you want to delete this character?", "Yes", "No");
+        
+        if (answer)
+        {
+            await _databaseService.DeleteCharacterAsync(Character.Id);
+            
+            await Shell.Current.GoToAsync("..");
+        }
+    }
     
     
 }
