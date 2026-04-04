@@ -27,7 +27,7 @@
         <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="10">
             <VerticalStackLayout Grid.Column="0" Spacing="5">
                 <Label Text="Strength" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                <Entry Text="{Binding Strength}" Keyboard="Numeric" HorizontalTextAlignment="Center" />
+                <Entry Text="{Binding Strength}" Keyboard="Numeric" MaxLength="2" HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
             <Stepper Grid.Column="1" Value="{Binding Strength}" Minimum="1" Maximum="30" VerticalOptions="End" />
         </Grid>
