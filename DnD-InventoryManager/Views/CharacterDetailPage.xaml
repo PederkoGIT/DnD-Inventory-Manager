@@ -64,7 +64,7 @@
                 <VerticalStackLayout Spacing="5">
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Grid.Column="0" Text="Inventory Load" FontSize="11" TextColor="{StaticResource Gray500}" />
-                        <Label Grid.Column="1" Text="0 / 0 lb" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                        <Label Grid.Column="1" Text="{Binding Character.CarryingCapacity, StringFormat='0 / {0} lb'}" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
                     </Grid>
                     <ProgressBar Progress="0.0" 
                                  ProgressColor="{StaticResource Primary}"
