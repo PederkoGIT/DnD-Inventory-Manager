@@ -5,25 +5,40 @@ using DnD_InventoryManager.Services;
 
 namespace DnD_InventoryManager.ViewModels;
 
-public partial class AddCharacterViewModel : ViewModelBase
+[QueryProperty(nameof(CharacterToEdit), "Character")]
+public partial class EditCharacterViewModel : ViewModelBase
 {
+    private readonly DatabaseService _databaseService;
+
+    [ObservableProperty] private Character? characterToEdit;
+    
     [ObservableProperty] private string name = string.Empty;
-
     [ObservableProperty] private int strength = 10;
-
     [ObservableProperty] private CharacterSizeEnum selectedSize = CharacterSizeEnum.Medium;
-
     [ObservableProperty] private string selectedImagePath = "dotnet_bot.png";
 
-    private readonly DatabaseService _databaseService;
 
     public List<CharacterSizeEnum> AllSizes =>
         Enum.GetValues(typeof(CharacterSizeEnum)).Cast<CharacterSizeEnum>().ToList();
 
-    public AddCharacterViewModel(DatabaseService databaseService)
+    public EditCharacterViewModel(DatabaseService databaseService)
     {
         _databaseService = databaseService;
         Title = "New Character";
+    }
+
+    partial void OnCharacterToEditChanged(Character? value)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        
+        Name = value.Name;
+        Strength =  value.Strength;
+        SelectedSize = value.Size;
+        SelectedImagePath =  value.ImagePath;
+        Title = "Edit Character";
     }
 
     [RelayCommand]
@@ -48,15 +63,14 @@ public partial class AddCharacterViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(Name)) return;
 
-        var newCharacter = new Character
-        {
-            Name = Name,
-            Strength = Strength,
-            Size = SelectedSize,
-            ImagePath = selectedImagePath
-        };
+        var characterToSave = CharacterToEdit ?? new Character();
 
-        await _databaseService.SaveCharacterAsync(newCharacter);
+        characterToSave.Name = Name;
+        characterToSave.Strength = Strength;
+        characterToSave.ImagePath = SelectedImagePath;
+        characterToSave.Size = SelectedSize;
+
+        await _databaseService.SaveCharacterAsync(characterToSave);
         await Shell.Current.GoToAsync("..");
     }
 }

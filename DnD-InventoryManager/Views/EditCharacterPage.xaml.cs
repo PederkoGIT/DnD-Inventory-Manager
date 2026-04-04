@@ -7,9 +7,9 @@ using DnD_InventoryManager.ViewModels;
 
 namespace DnD_InventoryManager.Views;
 
-public partial class AddCharacterPage : ContentPage
+public partial class EditCharacterPage : ContentPage
 {
-    public AddCharacterPage(AddCharacterViewModel viewModel)
+    public EditCharacterPage(EditCharacterViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;

@@ -19,6 +19,17 @@ public class DatabaseService
         await _database.CreateTableAsync<CharacterEntity>();
     }
 
+    public async Task<Character?> GetCharacterById(int id)
+    {
+        await Init();
+        
+        var entity = await _database!.Table<CharacterEntity>().Where(e => e.Id == id).FirstOrDefaultAsync();
+        
+        if (entity is null) return null;
+        
+        return _mapper.ToModel(entity);
+    }
+
     public async Task<List<Character>> GetCharactersAsync()
     {
         await Init();

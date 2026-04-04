@@ -3,8 +3,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
-             x:Class="DnD_InventoryManager.Views.AddCharacterPage"
-             x:DataType="vm:AddCharacterViewModel"
+             x:Class="DnD_InventoryManager.Views.EditCharacterPage"
+             x:DataType="vm:EditCharacterViewModel"
              BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray900}}"
              Title="{Binding Title}">
 

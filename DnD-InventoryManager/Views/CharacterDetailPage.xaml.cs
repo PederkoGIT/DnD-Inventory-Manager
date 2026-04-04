@@ -14,4 +14,14 @@ public partial class CharacterDetailPage : ContentPage
         InitializeComponent();
         BindingContext = viewModel;
     }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is CharacterDetailViewModel viewModel)
+        {
+            await viewModel.RefreshCharacterAsync();
+        }
+    }
 }

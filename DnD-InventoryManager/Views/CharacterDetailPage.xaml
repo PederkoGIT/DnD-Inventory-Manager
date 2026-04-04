@@ -6,6 +6,11 @@
              x:DataType="vm:CharacterDetailViewModel"
              BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray900}}"
              Title="{Binding Title}">
+    
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Edit" 
+                     Command="{Binding GoToEditCharacterCommand}" />
+    </ContentPage.ToolbarItems>
 
     <ScrollView>
         <VerticalStackLayout Padding="25" Spacing="25">

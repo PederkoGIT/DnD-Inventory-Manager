@@ -25,8 +25,8 @@ public static class MauiProgram
 		builder.Services.AddSingleton<MainViewModel>();
 		builder.Services.AddSingleton<MainPage>();
 
-		builder.Services.AddTransient<AddCharacterPage>();
-		builder.Services.AddTransient<AddCharacterViewModel>();
+		builder.Services.AddTransient<EditCharacterPage>();
+		builder.Services.AddTransient<EditCharacterViewModel>();
 
 		builder.Services.AddTransient<CharacterDetailPage>();
 		builder.Services.AddTransient<CharacterDetailViewModel>();
