@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             xmlns:models="clr-namespace:DnD_InventoryManager.Models" 
+             x:DataType="vm:MainViewModel" 
+             Title="{Binding Title}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"
+             x:Class="DnD_InventoryManager.Views.MainPage">
+
+    <Grid>
+        <CollectionView ItemsSource="{Binding Characters}" 
+                        SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Character">
+                    <Border Margin="15,8" 
+                            Padding="12" 
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" 
+                            StrokeThickness="1"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="15" />
+                        </Border.StrokeShape>
+                        
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="5" Opacity="0.1" />
+                        </Border.Shadow>
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=GoToCharacterDetailCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="15">
+                            
+                            <Border Grid.Column="0"
+                                    HeightRequest="80"
+                                    WidthRequest="80"
+                                    StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10" />
+                                </Border.StrokeShape>
+                                <Image Source="{Binding ImagePath}" 
+                                       Aspect="AspectFill" />
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding Name}" 
+                                       FontAttributes="Bold" 
+                                       FontSize="18" 
+                                       TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+                                
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="{Binding Strength, StringFormat='STR: {0}'}" 
+                                           FontSize="11" 
+                                           TextColor="{StaticResource Gray500}" />
+                                    <Label Text="•" TextColor="{StaticResource Gray400}" />
+                                    <Label Text="{Binding Size}" 
+                                           FontSize="11" 
+                                           TextColor="{StaticResource Gray500}" />
+                                </HorizontalStackLayout>
+
+                                <Label Text="{Binding CarryingCapacity, StringFormat='Capacity: {0} lb'}" 
+                                       FontAttributes="Bold"
+                                       FontSize="15"
+                                       TextColor="{StaticResource Primary}" 
+                                       Margin="0,4,0,0" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Text="+"
+                FontSize="28"
+                FontAttributes="Bold"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="{StaticResource White}"
+                HeightRequest="60"
+                WidthRequest="60"
+                CornerRadius="30"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="25"
+                Command="{Binding GoToAddCharacterCommand}">
+            <Button.Shadow>
+                <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.3" />
+            </Button.Shadow>
+        </Button>
+    </Grid>
+</ContentPage>

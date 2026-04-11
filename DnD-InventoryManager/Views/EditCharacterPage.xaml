@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             x:Class="DnD_InventoryManager.Views.EditCharacterPage"
+             x:DataType="vm:EditCharacterViewModel"
+             BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray900}}"
+             Title="{Binding Title}">
+
+    <VerticalStackLayout Padding="25" Spacing="20">
+        <Border HorizontalOptions="Center" HeightRequest="160" WidthRequest="160"
+                Stroke="{StaticResource Primary}" StrokeThickness="2">
+            <Border.StrokeShape><RoundRectangle CornerRadius="80" /></Border.StrokeShape>
+            <Image Source="{Binding SelectedImagePath}" Aspect="AspectFill" />
+        </Border>
+        
+        <Button Text="Select Image" Command="{Binding PickImageCommand}" 
+                BackgroundColor="{StaticResource Secondary}" 
+                TextColor="{StaticResource SecondaryDarkText}" />
+
+        <VerticalStackLayout Spacing="5">
+            <Label Text="Character name" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+            <Entry Placeholder="Name..." Text="{Binding Name}" />
+        </VerticalStackLayout>
+
+        <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="10">
+            <VerticalStackLayout Grid.Column="0" Spacing="5">
+                <Label Text="Strength" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                <Entry Text="{Binding Strength}" Keyboard="Numeric" MaxLength="2" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+            <Stepper Grid.Column="1" Value="{Binding Strength}" Minimum="1" Maximum="30" VerticalOptions="End" />
+        </Grid>
+
+        <VerticalStackLayout Spacing="5">
+            <Label Text="Character size" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+            <Picker Title="Select size..." ItemsSource="{Binding AllSizes}" SelectedItem="{Binding SelectedSize}" />
+        </VerticalStackLayout>
+
+        <Button Text="Save Character" Command="{Binding SaveCommand}" Margin="0,20,0,0" />
+    </VerticalStackLayout>
+</ContentPage>
