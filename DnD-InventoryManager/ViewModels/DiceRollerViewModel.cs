@@ -30,6 +30,18 @@ public partial class DiceRollerViewModel : ViewModelBase
         string sign = Modifier >= 0 ? "+" : "";
         CalculationText = $"({roll}) {sign} {Modifier}";
 
+        try
+        {
+            if (Vibration.Default.IsSupported)
+            {
+                Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(50));
+            }
+        }
+        catch
+        {
+            return;
+        }
+
     }
 
     [RelayCommand]
