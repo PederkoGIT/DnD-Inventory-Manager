@@ -96,5 +96,11 @@ public partial class MainViewModel : ViewModelBase
 
         await Shell.Current.DisplayAlertAsync("Listen for NFC", "Attach your phone to NFC tag", "OK");
     }
+    
+    [RelayCommand]
+    private async Task ShowDiceRollerAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(DiceRollerPage));
+    }
 
 }

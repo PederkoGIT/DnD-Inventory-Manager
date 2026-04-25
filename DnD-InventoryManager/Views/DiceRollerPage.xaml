@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             x:Class="DnD_InventoryManager.Views.DiceRollerPage"
+             x:DataType="vm:DiceRollerViewModel"
+             Shell.PresentationMode="ModalAnimated"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
+
+    <Grid RowDefinitions="Auto, *, Auto" Padding="20" Margin="0, 40, 0, 0">
+        
+        <Label Grid.Row="0" Text="🎲 Hádzanie kockou" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
+
+        <VerticalStackLayout Grid.Row="1" Spacing="30" VerticalOptions="Center">
+            
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="20">
+                <VerticalStackLayout Grid.Column="0">
+                    <Label Text="Kocka" FontSize="14" TextColor="{StaticResource Gray500}"/>
+                    <Picker ItemsSource="{Binding DiceOptions}" SelectedItem="{Binding SelectedDice}" FontSize="18"/>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Grid.Column="1">
+                    <Label Text="Modifikátor" FontSize="14" TextColor="{StaticResource Gray500}"/>
+                    <Entry Text="{Binding Modifier}" Keyboard="Numeric" HorizontalTextAlignment="Center" FontSize="18"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray900}}"
+                    StrokeThickness="0" HeightRequest="150" Padding="10">
+                <Border.StrokeShape><RoundRectangle CornerRadius="15" /></Border.StrokeShape>
+                <VerticalStackLayout VerticalOptions="Center">
+                    <Label Text="{Binding ResultText}" FontSize="72" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Primary}"/>
+                    <Label Text="{Binding CalculationText}" FontSize="14" HorizontalOptions="Center" TextColor="{StaticResource Gray500}"/>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="15">
+            <Button Grid.Column="0" Text="Zatvoriť" BackgroundColor="Transparent" TextColor="{StaticResource Gray500}" Command="{Binding CloseCommand}" />
+            <Button Grid.Column="1" Text="Roll" BackgroundColor="{StaticResource Primary}" TextColor="White" Command="{Binding RollCommand}" CornerRadius="10" HeightRequest="50"/>
+        </Grid>
+    </Grid>
+</ContentPage>
