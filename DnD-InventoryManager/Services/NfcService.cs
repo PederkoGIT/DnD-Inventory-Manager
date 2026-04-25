@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using DnD_InventoryManager.Models;
+using DnD_InventoryManager.Utils;
 using Plugin.NFC;
 
 namespace DnD_InventoryManager.Services;
@@ -67,11 +68,8 @@ public class NfcService
             var record = tagInfo.Records?.FirstOrDefault();
             if (record != null && record.Payload != null)
             {
-                var payload = record.Payload;
-                int languageCodeLength = payload[0] & 0x3F; 
-                int textStartIndex = languageCodeLength + 1;
+                string json = BrotliHelper.DecompressFromBrotli(record.Payload);
                 
-                string json = Encoding.UTF8.GetString(payload, textStartIndex, payload.Length - textStartIndex);
                 var dto = JsonSerializer.Deserialize<NfcCharacterDto>(json);
 
                 if (dto != null)
@@ -106,13 +104,14 @@ public class NfcService
                 Size = _characterToWrite.Size
             };
             string json = JsonSerializer.Serialize(dto);
+            
+            byte[] compressedPayload = BrotliHelper.CompressToBrotli(json);
 
             var record = new NFCNdefRecord
             {
-                TypeFormat = NFCNdefTypeFormat.WellKnown,
-                Payload = Encoding.UTF8.GetBytes(json),
-                MimeType = "text/plain",
-                LanguageCode = "en"
+                TypeFormat = NFCNdefTypeFormat.Mime,
+                MimeType = "application/vnd.dnd.brotli",
+                Payload = compressedPayload
             };
 
             tagInfo.Records = new[] { record };
