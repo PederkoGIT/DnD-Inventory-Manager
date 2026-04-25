@@ -33,6 +33,8 @@ public static class MauiProgram
 
 		builder.Services.AddSingleton<DatabaseService>();
 		
+		builder.Services.AddSingleton<NfcService>();
+		
 		return builder.Build();
 	}
 }

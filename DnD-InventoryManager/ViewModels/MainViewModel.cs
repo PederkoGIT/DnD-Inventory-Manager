@@ -9,11 +9,13 @@ namespace DnD_InventoryManager.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     private readonly DatabaseService _databaseService;
+    private readonly NfcService _nfcService;
     public ObservableCollection<Character> Characters { get; } = new();
 
-    public MainViewModel(DatabaseService databaseService)
+    public MainViewModel(DatabaseService databaseService, NfcService nfcService)
     {
         _databaseService = databaseService;
+        _nfcService = nfcService;
         Title = "My Characters";
         
         LoadSamples();
@@ -55,6 +57,44 @@ public partial class MainViewModel : ViewModelBase
         {
             { "Character", selectedCharacter }
         });
+    }
+    
+    [RelayCommand]
+    public async Task ListenForNfcAsync()
+    {
+        _nfcService.StartListening(
+            onCharacterReceived: async (receivedCharacter) =>
+            {
+                _nfcService.StopListening();
+                receivedCharacter.Id = 0;
+                
+                try
+                {
+                    await _databaseService.SaveCharacterAsync(receivedCharacter);
+                
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        Characters.Add(receivedCharacter);
+                        await Shell.Current.DisplayAlertAsync("Success", "Character saved", "OK");
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
+                    });
+                }
+            },
+            onError: (errorMsg) =>
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
+                });
+            });
+
+        await Shell.Current.DisplayAlertAsync("Listen for NFC", "Attach your phone to NFC tag", "OK");
     }
 
 }
