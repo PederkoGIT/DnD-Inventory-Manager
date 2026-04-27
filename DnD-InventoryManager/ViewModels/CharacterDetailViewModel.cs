@@ -12,10 +12,12 @@ public partial class CharacterDetailViewModel : ViewModelBase
     [ObservableProperty] private Character? character;
 
     private readonly DatabaseService _databaseService;
+    private readonly NfcService _nfcService;
 
-    public CharacterDetailViewModel(DatabaseService databaseService)
+    public CharacterDetailViewModel(DatabaseService databaseService, NfcService nfcService)
     {
         _databaseService = databaseService;
+        _nfcService = nfcService;
         Title = "Detail";
     }
 
@@ -74,6 +76,30 @@ public partial class CharacterDetailViewModel : ViewModelBase
             
             await Shell.Current.GoToAsync("..");
         }
+    }
+    
+    [RelayCommand]
+    private async Task WriteToNfcAsync()
+    {
+        if (Character == null) return;
+
+        _nfcService.StartWriting(Character,
+            onSuccess: () =>
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Shell.Current.DisplayAlertAsync("Success", "Character written to NFC tag", "OK");
+                });
+            },
+            onError: (errorMsg) =>
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
+                });
+            });
+
+        await Shell.Current.DisplayAlertAsync("Write to NFC", "Attach your phone to NFC tag", "OK");
     }
     
     

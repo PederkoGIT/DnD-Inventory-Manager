@@ -73,21 +73,51 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Button Text="+"
-                FontSize="28"
-                FontAttributes="Bold"
-                BackgroundColor="{StaticResource Primary}"
-                TextColor="{StaticResource White}"
-                HeightRequest="60"
-                WidthRequest="60"
-                CornerRadius="30"
-                HorizontalOptions="End"
-                VerticalOptions="End"
-                Margin="25"
-                Command="{Binding GoToAddCharacterCommand}">
-            <Button.Shadow>
-                <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.3" />
-            </Button.Shadow>
-        </Button>
+        <VerticalStackLayout HorizontalOptions="End"
+                             VerticalOptions="End"
+                             Margin="25"
+                             Spacing="15">
+
+            <Button Text="🎲"
+                    FontSize="26"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
+                    TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}"
+                    HeightRequest="60"
+                    WidthRequest="60"
+                    CornerRadius="30"
+                    Command="{Binding ShowDiceRollerCommand}">
+                <Button.Shadow>
+                    <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.3" />
+                </Button.Shadow>
+            </Button>
+
+            <Button Text="NFC"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
+                    TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}"
+                    HeightRequest="60"
+                    WidthRequest="60"
+                    CornerRadius="30"
+                    Command="{Binding ListenForNfcCommand}">
+                <Button.Shadow>
+                    <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.3" />
+                </Button.Shadow>
+            </Button>
+
+            <Button Text="+"
+                    FontSize="28"
+                    FontAttributes="Bold"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="{StaticResource White}"
+                    HeightRequest="60"
+                    WidthRequest="60"
+                    CornerRadius="30"
+                    Command="{Binding GoToAddCharacterCommand}">
+                <Button.Shadow>
+                    <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.3" />
+                </Button.Shadow>
+            </Button>
+        </VerticalStackLayout>
     </Grid>
 </ContentPage>
