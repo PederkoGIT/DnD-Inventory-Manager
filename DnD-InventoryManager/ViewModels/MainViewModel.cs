@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
@@ -11,6 +12,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly DatabaseService _databaseService;
     private readonly NfcService _nfcService;
     public ObservableCollection<Character> Characters { get; } = new();
+    [ObservableProperty] private bool _isWaitingForNfc;
 
     public MainViewModel(DatabaseService databaseService, NfcService nfcService)
     {
@@ -60,8 +62,10 @@ public partial class MainViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    public async Task ListenForNfcAsync()
+    public void ListenForNfc()
     {
+        IsWaitingForNfc = true;
+
         _nfcService.StartListening(
             onCharacterReceived: async (receivedCharacter) =>
             {
@@ -74,6 +78,7 @@ public partial class MainViewModel : ViewModelBase
                 
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
+                        IsWaitingForNfc = false;
                         Characters.Add(receivedCharacter);
                         await Shell.Current.DisplayAlertAsync("Success", "Character saved", "OK");
                     });
@@ -82,6 +87,7 @@ public partial class MainViewModel : ViewModelBase
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
+                        IsWaitingForNfc = false;
                         await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
                     });
                 }
@@ -90,11 +96,17 @@ public partial class MainViewModel : ViewModelBase
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
+                    IsWaitingForNfc = false;
                     await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
                 });
             });
+    }
 
-        await Shell.Current.DisplayAlertAsync("Listen for NFC", "Attach your phone to NFC tag", "OK");
+    [RelayCommand]
+    private void CancelNfc()
+    {
+        IsWaitingForNfc = false;
+        _nfcService.StopListening();
     }
     
     [RelayCommand]

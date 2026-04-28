@@ -9,7 +9,8 @@ namespace DnD_InventoryManager.ViewModels;
 [QueryProperty(nameof(Character), "Character")]
 public partial class CharacterDetailViewModel : ViewModelBase
 {
-    [ObservableProperty] private Character? character;
+    [ObservableProperty] private Character? _character;
+    [ObservableProperty] private bool _isWaitingForNfc;
 
     private readonly DatabaseService _databaseService;
     private readonly NfcService _nfcService;
@@ -48,14 +49,14 @@ public partial class CharacterDetailViewModel : ViewModelBase
     [RelayCommand]
     private async Task GoToEditCharacterAsync()
     {
-        if (character == null)
+        if (Character == null)
         {
             return;
         }
         
         await Shell.Current.GoToAsync(nameof(EditCharacterPage), new Dictionary<string, object>
         {
-            { "Character", character }
+            { "Character", Character }
         });
     }
 
@@ -79,15 +80,18 @@ public partial class CharacterDetailViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    private async Task WriteToNfcAsync()
+    private void WriteToNfc()
     {
         if (Character == null) return;
+
+        IsWaitingForNfc = true;
 
         _nfcService.StartWriting(Character,
             onSuccess: () =>
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
+                    IsWaitingForNfc = false;
                     await Shell.Current.DisplayAlertAsync("Success", "Character written to NFC tag", "OK");
                 });
             },
@@ -95,11 +99,17 @@ public partial class CharacterDetailViewModel : ViewModelBase
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
+                    IsWaitingForNfc = false;
                     await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
                 });
             });
+    }
 
-        await Shell.Current.DisplayAlertAsync("Write to NFC", "Attach your phone to NFC tag", "OK");
+    [RelayCommand]
+    private void CancelNfc()
+    {
+        IsWaitingForNfc = false;
+        _nfcService.StopWriting();
     }
     
     

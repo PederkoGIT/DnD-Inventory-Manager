@@ -20,5 +20,15 @@ public partial class MainPage : ContentPage
         }
     }
 
-    
+    protected override bool OnBackButtonPressed()
+    {
+        if (BindingContext is MainViewModel viewModel && viewModel.IsWaitingForNfc)
+        {
+            viewModel.CancelNfcCommand.Execute(null);
+            
+            return true;
+        }
+        
+        return base.OnBackButtonPressed();
+    }
 }

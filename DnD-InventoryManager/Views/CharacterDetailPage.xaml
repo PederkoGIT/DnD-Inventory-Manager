@@ -121,5 +121,43 @@
                 </Button.Shadow>
             </Button>
         </VerticalStackLayout>
+        
+        <Grid Grid.Row="0" Grid.RowSpan="2" 
+              BackgroundColor="#90000000" 
+              IsVisible="{Binding IsWaitingForNfc}" 
+              ZIndex="100">
+            
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer />
+            </Grid.GestureRecognizers>
+            
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    Padding="30"
+                    WidthRequest="280">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15" />
+                </Border.StrokeShape>
+
+                <VerticalStackLayout Spacing="20">
+                    <ActivityIndicator IsRunning="True" 
+                                       Color="{StaticResource Primary}" 
+                                       HeightRequest="40" 
+                                       WidthRequest="40" />
+                    
+                    <Label Text="Approach an NFC tag" 
+                           FontSize="16" 
+                           TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
+                           HorizontalOptions="Center" 
+                           HorizontalTextAlignment="Center" />
+                    
+                    <Button Text="Cancel" 
+                            Command="{Binding CancelNfcCommand}" 
+                            BackgroundColor="Transparent" 
+                            TextColor="{StaticResource Gray500}" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
     </Grid>
 </ContentPage>

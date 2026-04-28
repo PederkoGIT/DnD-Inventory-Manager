@@ -57,6 +57,12 @@ public class NfcService
         
         CrossNFC.Current.StartPublishing();
     }
+    
+    public void StopWriting()
+    {
+        CrossNFC.Current.StopPublishing();
+        _isWriting = false;
+    }
 
 
     private void Current_OnMessageReceived(ITagInfo tagInfo)

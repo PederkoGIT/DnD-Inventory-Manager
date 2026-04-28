@@ -24,4 +24,16 @@ public partial class CharacterDetailPage : ContentPage
             await viewModel.RefreshCharacterAsync();
         }
     }
+
+    protected override bool OnBackButtonPressed()
+    {
+        if (BindingContext is CharacterDetailViewModel viewModel && viewModel.IsWaitingForNfc)
+        {
+            viewModel.CancelNfcCommand.Execute(null);
+
+            return true;
+        }
+        
+        return base.OnBackButtonPressed();
+    }
 }
