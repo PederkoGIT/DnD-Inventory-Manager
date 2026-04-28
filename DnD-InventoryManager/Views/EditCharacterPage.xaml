@@ -1,42 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
              x:Class="DnD_InventoryManager.Views.EditCharacterPage"
              x:DataType="vm:EditCharacterViewModel"
-             BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray900}}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"
              Title="{Binding Title}">
 
-    <VerticalStackLayout Padding="25" Spacing="20">
-        <Border HorizontalOptions="Center" HeightRequest="160" WidthRequest="160"
-                Stroke="{StaticResource Primary}" StrokeThickness="2">
-            <Border.StrokeShape><RoundRectangle CornerRadius="80" /></Border.StrokeShape>
-            <Image Source="{Binding SelectedImagePath}" Aspect="AspectFill" />
-        </Border>
-        
-        <Button Text="Select Image" Command="{Binding PickImageCommand}" 
-                BackgroundColor="{StaticResource Secondary}" 
-                TextColor="{StaticResource SecondaryDarkText}" />
-
-        <VerticalStackLayout Spacing="5">
-            <Label Text="Character name" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-            <Entry Placeholder="Name..." Text="{Binding Name}" />
-        </VerticalStackLayout>
-
-        <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="10">
-            <VerticalStackLayout Grid.Column="0" Spacing="5">
-                <Label Text="Strength" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                <Entry Text="{Binding Strength}" Keyboard="Numeric" MaxLength="2" HorizontalTextAlignment="Center" />
+    <ScrollView>
+        <VerticalStackLayout Padding="20,30,20,40" Spacing="25">
+            
+            <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                <Border HeightRequest="140" WidthRequest="140" Stroke="{StaticResource Primary}" StrokeThickness="3">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="70" /></Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,5" Radius="10" Opacity="0.3" />
+                    </Border.Shadow>
+                    <Image Source="{Binding SelectedImagePath}" Aspect="AspectFill" />
+                </Border>
+                <Button Text="Change Portrait" Command="{Binding PickImageCommand}" BackgroundColor="Transparent" TextColor="{StaticResource Primary}" FontAttributes="Bold" Padding="0"/>
             </VerticalStackLayout>
-            <Stepper Grid.Column="1" Value="{Binding Strength}" Minimum="1" Maximum="30" VerticalOptions="End" />
-        </Grid>
 
-        <VerticalStackLayout Spacing="5">
-            <Label Text="Character size" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-            <Picker Title="Select size..." ItemsSource="{x:Static vm:EditCharacterViewModel.AllSizes}" SelectedItem="{Binding SelectedSize}" />
+            <Border Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}" Padding="20">
+                <Border.StrokeShape><RoundRectangle CornerRadius="15" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="20">
+                    
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="CHARACTER NAME" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                        <Entry Placeholder="e.g. Gimli..." Text="{Binding Name}" FontSize="16" />
+                    </VerticalStackLayout>
+
+                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}" />
+
+                    <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="15">
+                        <VerticalStackLayout Grid.Column="0" Spacing="8">
+                            <Label Text="STRENGTH (STR)" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                            <Entry Text="{Binding Strength}" Keyboard="Numeric" MaxLength="2" FontSize="16" />
+                        </VerticalStackLayout>
+                        <Stepper Grid.Column="1" Value="{Binding Strength}" Minimum="1" Maximum="30" VerticalOptions="End" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}" />
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="SIZE CLASS" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                        <Picker Title="Select size..." ItemsSource="{x:Static vm:EditCharacterViewModel.AllSizes}" SelectedItem="{Binding SelectedSize}" FontSize="16" />
+                    </VerticalStackLayout>
+                    
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="Save Character" Command="{Binding SaveCommand}" BackgroundColor="{StaticResource Primary}" HeightRequest="55" CornerRadius="12" FontAttributes="Bold" Margin="0,15,0,0">
+                <Button.Shadow>
+                    <Shadow Brush="{StaticResource Primary}" Offset="0,4" Radius="10" Opacity="0.4" />
+                </Button.Shadow>
+            </Button>
+            
         </VerticalStackLayout>
-
-        <Button Text="Save Character" Command="{Binding SaveCommand}" Margin="0,20,0,0" />
-    </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
