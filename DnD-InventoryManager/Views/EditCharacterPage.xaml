@@ -34,7 +34,7 @@
 
         <VerticalStackLayout Spacing="5">
             <Label Text="Character size" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-            <Picker Title="Select size..." ItemsSource="{Binding AllSizes}" SelectedItem="{Binding SelectedSize}" />
+            <Picker Title="Select size..." ItemsSource="{x:Static vm:EditCharacterViewModel.AllSizes}" SelectedItem="{Binding SelectedSize}" />
         </VerticalStackLayout>
 
         <Button Text="Save Character" Command="{Binding SaveCommand}" Margin="0,20,0,0" />

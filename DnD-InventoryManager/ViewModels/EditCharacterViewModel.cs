@@ -10,16 +10,22 @@ public partial class EditCharacterViewModel : ViewModelBase
 {
     private readonly DatabaseService _databaseService;
 
-    [ObservableProperty] private Character? characterToEdit;
-    
-    [ObservableProperty] private string name = string.Empty;
-    [ObservableProperty] private int strength = 10;
-    [ObservableProperty] private CharacterSizeEnum selectedSize = CharacterSizeEnum.Medium;
-    [ObservableProperty] private string selectedImagePath = "dotnet_bot.png";
+    [ObservableProperty]
+    public partial Character? CharacterToEdit { get; set; }
+    [ObservableProperty]
+    public partial string Name { get; set; } = string.Empty;
 
+    [ObservableProperty]
+    public partial int Strength { get; set; } = 10;
 
-    public List<CharacterSizeEnum> AllSizes =>
-        Enum.GetValues(typeof(CharacterSizeEnum)).Cast<CharacterSizeEnum>().ToList();
+    [ObservableProperty]
+    public partial CharacterSizeEnum SelectedSize { get; set; } = CharacterSizeEnum.Medium;
+
+    [ObservableProperty]
+    public partial string SelectedImagePath { get; set; } = "dotnet_bot.png";
+
+    public static List<CharacterSizeEnum> AllSizes =>
+        Enum.GetValues<CharacterSizeEnum>().Cast<CharacterSizeEnum>().ToList();
 
     public EditCharacterViewModel(DatabaseService databaseService)
     {
@@ -46,7 +52,15 @@ public partial class EditCharacterViewModel : ViewModelBase
     {
         try
         {
-            var photo = await MediaPicker.Default.PickPhotoAsync();
+            var mediaOptions = new MediaPickerOptions
+            {
+                SelectionLimit = 1
+            };
+            
+            var photos = await MediaPicker.Default.PickPhotosAsync(mediaOptions);
+            
+            var photo = photos.FirstOrDefault();
+            
             if (photo != null)
             {
                 SelectedImagePath = photo.FullPath;
@@ -76,14 +90,11 @@ public partial class EditCharacterViewModel : ViewModelBase
 
     partial void OnStrengthChanged(int value)
     {
-        if (value < 1)
+        Strength = value switch
         {
-            Strength = 1;
-        }
-
-        if (value > 30)
-        {
-            Strength = 30;
-        }
+            < 1 => 1,
+            > 30 => 30,
+            _ => Strength
+        };
     }
 }

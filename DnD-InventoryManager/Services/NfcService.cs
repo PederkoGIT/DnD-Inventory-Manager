@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using DnD_InventoryManager.Models;
@@ -9,9 +8,9 @@ namespace DnD_InventoryManager.Services;
 
 public class NfcCharacterDto
 {
-    [JsonPropertyName("n")] public string Name { get; set; } = string.Empty;
-    [JsonPropertyName("s")] public int Strength { get; set; }
-    [JsonPropertyName("z")] public CharacterSizeEnum Size { get; set; }
+    [JsonPropertyName("n")] public string Name { get; init; } = string.Empty;
+    [JsonPropertyName("s")] public int Strength { get; init; }
+    [JsonPropertyName("z")] public CharacterSizeEnum Size { get; init; }
 }
 
 public class NfcService
@@ -72,28 +71,28 @@ public class NfcService
         try
         {
             var record = tagInfo.Records?.FirstOrDefault();
-            if (record != null && record.Payload != null)
-            {
-                string json = BrotliHelper.DecompressFromBrotli(record.Payload);
+            
+            if (record is not { Payload: not null }) return;
+            
+            var json = BrotliHelper.DecompressFromBrotli(record.Payload);
                 
-                var dto = JsonSerializer.Deserialize<NfcCharacterDto>(json);
+            var dto = JsonSerializer.Deserialize<NfcCharacterDto>(json);
 
-                if (dto != null)
-                {
-                    var character = new Character
-                    {
-                        Name = dto.Name,
-                        Strength = dto.Strength,
-                        Size = dto.Size,
-                        ImagePath = "dotnet_bot.png" 
-                    };
-                    _onCharacterReceived?.Invoke(character);
-                }
-            }
+            if (dto == null) return;
+            
+            var character = new Character
+            {
+                Name = dto.Name,
+                Strength = dto.Strength,
+                Size = dto.Size,
+                ImagePath = "dotnet_bot.png" 
+            };
+            
+            _onCharacterReceived?.Invoke(character);
         }
         catch (Exception ex)
         {
-            _onError?.Invoke($"Couldnt read from tag: {ex.Message}");
+            _onError?.Invoke($"Couldn't read from tag: {ex.Message}");
         }
     }
 
@@ -109,9 +108,9 @@ public class NfcService
                 Strength = _characterToWrite.Strength,
                 Size = _characterToWrite.Size
             };
-            string json = JsonSerializer.Serialize(dto);
+            var json = JsonSerializer.Serialize(dto);
             
-            byte[] compressedPayload = BrotliHelper.CompressToBrotli(json);
+            var compressedPayload = BrotliHelper.CompressToBrotli(json);
 
             var record = new NFCNdefRecord
             {
@@ -120,7 +119,7 @@ public class NfcService
                 Payload = compressedPayload
             };
 
-            tagInfo.Records = new[] { record };
+            tagInfo.Records = [record];
             CrossNFC.Current.PublishMessage(tagInfo);
             
             _onSuccess?.Invoke();
@@ -130,7 +129,7 @@ public class NfcService
         }
         catch (Exception ex)
         {
-            _onError?.Invoke($"Couldnt write to tag: {ex.Message}");
+            _onError?.Invoke($"Couldn't write to tag: {ex.Message}");
         }
     }
 }

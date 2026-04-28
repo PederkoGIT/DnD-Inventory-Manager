@@ -9,18 +9,20 @@
 
     <Grid RowDefinitions="Auto, *, Auto" Padding="20" Margin="0, 40, 0, 0">
         
-        <Label Grid.Row="0" Text="🎲 Hádzanie kockou" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
+        <Label Grid.Row="0" Text="🎲 Dice Roller" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
 
         <VerticalStackLayout Grid.Row="1" Spacing="30" VerticalOptions="Center">
             
             <Grid ColumnDefinitions="*, *" ColumnSpacing="20">
                 <VerticalStackLayout Grid.Column="0">
-                    <Label Text="Kocka" FontSize="14" TextColor="{StaticResource Gray500}"/>
-                    <Picker ItemsSource="{Binding DiceOptions}" SelectedItem="{Binding SelectedDice}" FontSize="18"/>
+                    <Label Text="Dice" FontSize="14" TextColor="{StaticResource Gray500}"/>
+                    <Picker ItemsSource="{x:Static vm:DiceRollerViewModel.DiceOptions}" 
+                            SelectedItem="{Binding SelectedDice}" 
+                            FontSize="18"/>
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Grid.Column="1">
-                    <Label Text="Modifikátor" FontSize="14" TextColor="{StaticResource Gray500}"/>
+                    <Label Text="Modifier" FontSize="14" TextColor="{StaticResource Gray500}"/>
                     <Entry Text="{Binding Modifier}" Keyboard="Numeric" HorizontalTextAlignment="Center" FontSize="18"/>
                 </VerticalStackLayout>
             </Grid>
@@ -36,7 +38,7 @@
         </VerticalStackLayout>
 
         <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="15">
-            <Button Grid.Column="0" Text="Zatvoriť" BackgroundColor="Transparent" TextColor="{StaticResource Gray500}" Command="{Binding CloseCommand}" />
+            <Button Grid.Column="0" Text="Close" BackgroundColor="Transparent" TextColor="{StaticResource Gray500}" Command="{Binding CloseCommand}" />
             <Button Grid.Column="1" Text="Roll" BackgroundColor="{StaticResource Primary}" TextColor="White" Command="{Binding RollCommand}" CornerRadius="10" HeightRequest="50"/>
         </Grid>
     </Grid>

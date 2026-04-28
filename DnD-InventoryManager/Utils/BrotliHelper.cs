@@ -3,7 +3,7 @@ using System.Text;
 
 namespace DnD_InventoryManager.Utils;
 
-public class BrotliHelper
+public static class BrotliHelper
 {
     public static byte[] CompressToBrotli(string jsonText)
     {

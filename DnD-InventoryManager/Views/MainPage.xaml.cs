@@ -12,23 +12,28 @@ public partial class MainPage : ContentPage
 
     protected override async void OnAppearing()
     {
-        base.OnAppearing();
-
-        if (BindingContext is MainViewModel vm)
+        try
         {
-            await vm.LoadCharactersAsync();
+            base.OnAppearing();
+
+            if (BindingContext is MainViewModel vm)
+            {
+                await vm.LoadCharactersAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
         }
     }
 
     protected override bool OnBackButtonPressed()
     {
-        if (BindingContext is MainViewModel viewModel && viewModel.IsWaitingForNfc)
-        {
-            viewModel.CancelNfcCommand.Execute(null);
+        if (BindingContext is not MainViewModel { IsWaitingForNfc: true } viewModel)
+            return base.OnBackButtonPressed();
+        viewModel.CancelNfcCommand.Execute(null);
             
-            return true;
-        }
-        
-        return base.OnBackButtonPressed();
+        return true;
+
     }
 }

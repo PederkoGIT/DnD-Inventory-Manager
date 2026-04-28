@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DnD_InventoryManager.ViewModels;
 
 namespace DnD_InventoryManager.Views;
@@ -17,23 +12,28 @@ public partial class CharacterDetailPage : ContentPage
 
     protected override async void OnAppearing()
     {
-        base.OnAppearing();
-
-        if (BindingContext is CharacterDetailViewModel viewModel)
+        try
         {
-            await viewModel.RefreshCharacterAsync();
+            base.OnAppearing();
+
+            if (BindingContext is CharacterDetailViewModel viewModel)
+            {
+                await viewModel.RefreshCharacterAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
         }
     }
 
     protected override bool OnBackButtonPressed()
     {
-        if (BindingContext is CharacterDetailViewModel viewModel && viewModel.IsWaitingForNfc)
-        {
-            viewModel.CancelNfcCommand.Execute(null);
+        if (BindingContext is not CharacterDetailViewModel { IsWaitingForNfc: true } viewModel)
+            return base.OnBackButtonPressed();
+        viewModel.CancelNfcCommand.Execute(null);
 
-            return true;
-        }
-        
-        return base.OnBackButtonPressed();
+        return true;
+
     }
 }

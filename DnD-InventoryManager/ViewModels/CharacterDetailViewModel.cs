@@ -9,8 +9,11 @@ namespace DnD_InventoryManager.ViewModels;
 [QueryProperty(nameof(Character), "Character")]
 public partial class CharacterDetailViewModel : ViewModelBase
 {
-    [ObservableProperty] private Character? _character;
-    [ObservableProperty] private bool _isWaitingForNfc;
+    [ObservableProperty]
+    public partial Character? Character { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsWaitingForNfc { get; set; }
 
     private readonly DatabaseService _databaseService;
     private readonly NfcService _nfcService;
@@ -69,7 +72,7 @@ public partial class CharacterDetailViewModel : ViewModelBase
             return;
         }
         
-        bool answer = await Shell.Current.DisplayAlertAsync("Delete Character", "Are you sure you want to delete this character?", "Yes", "No");
+        var answer = await Shell.Current.DisplayAlertAsync("Delete Character", "Are you sure you want to delete this character?", "Yes", "No");
         
         if (answer)
         {
@@ -89,18 +92,32 @@ public partial class CharacterDetailViewModel : ViewModelBase
         _nfcService.StartWriting(Character,
             onSuccess: () =>
             {
-                MainThread.BeginInvokeOnMainThread(async () =>
+                MainThread.BeginInvokeOnMainThread(async void () =>
                 {
-                    IsWaitingForNfc = false;
-                    await Shell.Current.DisplayAlertAsync("Success", "Character written to NFC tag", "OK");
+                    try
+                    {
+                        IsWaitingForNfc = false;
+                        await Shell.Current.DisplayAlertAsync("Success", "Character written to NFC tag", "OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Success popup fail: {ex.Message}");
+                    }
                 });
             },
             onError: (errorMsg) =>
             {
-                MainThread.BeginInvokeOnMainThread(async () =>
+                MainThread.BeginInvokeOnMainThread(async void () => 
                 {
-                    IsWaitingForNfc = false;
-                    await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
+                    try
+                    {
+                        IsWaitingForNfc = false;
+                        await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error popup fail: {ex.Message}");
+                    }
                 });
             });
     }
