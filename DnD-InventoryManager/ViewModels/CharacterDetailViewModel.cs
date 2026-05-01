@@ -9,7 +9,11 @@ namespace DnD_InventoryManager.ViewModels;
 [QueryProperty(nameof(Character), "Character")]
 public partial class CharacterDetailViewModel : ViewModelBase
 {
-    [ObservableProperty] private Character? character;
+    [ObservableProperty]
+    public partial Character? Character { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsWaitingForNfc { get; set; }
 
     private readonly DatabaseService _databaseService;
     private readonly NfcService _nfcService;
@@ -48,14 +52,14 @@ public partial class CharacterDetailViewModel : ViewModelBase
     [RelayCommand]
     private async Task GoToEditCharacterAsync()
     {
-        if (character == null)
+        if (Character == null)
         {
             return;
         }
         
         await Shell.Current.GoToAsync(nameof(EditCharacterPage), new Dictionary<string, object>
         {
-            { "Character", character }
+            { "Character", Character }
         });
     }
 
@@ -68,7 +72,7 @@ public partial class CharacterDetailViewModel : ViewModelBase
             return;
         }
         
-        bool answer = await Shell.Current.DisplayAlertAsync("Delete Character", "Are you sure you want to delete this character?", "Yes", "No");
+        var answer = await Shell.Current.DisplayAlertAsync("Delete Character", "Are you sure you want to delete this character?", "Yes", "No");
         
         if (answer)
         {
@@ -79,27 +83,50 @@ public partial class CharacterDetailViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    private async Task WriteToNfcAsync()
+    private void WriteToNfc()
     {
         if (Character == null) return;
+
+        IsWaitingForNfc = true;
 
         _nfcService.StartWriting(Character,
             onSuccess: () =>
             {
-                MainThread.BeginInvokeOnMainThread(async () =>
+                MainThread.BeginInvokeOnMainThread(async void () =>
                 {
-                    await Shell.Current.DisplayAlertAsync("Success", "Character written to NFC tag", "OK");
+                    try
+                    {
+                        IsWaitingForNfc = false;
+                        await Shell.Current.DisplayAlertAsync("Success", "Character written to NFC tag", "OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Success popup fail: {ex.Message}");
+                    }
                 });
             },
             onError: (errorMsg) =>
             {
-                MainThread.BeginInvokeOnMainThread(async () =>
+                MainThread.BeginInvokeOnMainThread(async void () => 
                 {
-                    await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
+                    try
+                    {
+                        IsWaitingForNfc = false;
+                        await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error popup fail: {ex.Message}");
+                    }
                 });
             });
+    }
 
-        await Shell.Current.DisplayAlertAsync("Write to NFC", "Attach your phone to NFC tag", "OK");
+    [RelayCommand]
+    private void CancelNfc()
+    {
+        IsWaitingForNfc = false;
+        _nfcService.StopWriting();
     }
     
     

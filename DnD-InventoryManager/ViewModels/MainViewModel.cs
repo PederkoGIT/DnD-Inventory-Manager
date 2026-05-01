@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
@@ -10,7 +11,11 @@ public partial class MainViewModel : ViewModelBase
 {
     private readonly DatabaseService _databaseService;
     private readonly NfcService _nfcService;
-    public ObservableCollection<Character> Characters { get; } = new();
+    
+    public ObservableCollection<Character> Characters { get; } = [];
+    
+    [ObservableProperty]
+    public partial bool IsWaitingForNfc { get; set; }
 
     public MainViewModel(DatabaseService databaseService, NfcService nfcService)
     {
@@ -23,11 +28,11 @@ public partial class MainViewModel : ViewModelBase
 
     private void LoadSamples()
     {
-        Characters.Add(new Character { Name = "Johb", Strength = 18, Size = CharacterSizeEnum.Medium});
+        Characters.Add(new() { Name = "Johb", Strength = 18, Size = CharacterSizeEnum.Medium});
     }
 
     [RelayCommand]
-    private async Task GoToAddCharacterAsync()
+    private static async Task GoToAddCharacterAsync()
     {
         await Shell.Current.GoToAsync(nameof(EditCharacterPage));
     }
@@ -36,23 +41,21 @@ public partial class MainViewModel : ViewModelBase
     public async Task LoadCharactersAsync()
     {
         IsBusy = true;
+        
         var list = await _databaseService.GetCharactersAsync();
         
         Characters.Clear();
         foreach (var c in list)
+        {
             Characters.Add(c);
+        }
 
         IsBusy = false;
     }
 
     [RelayCommand]
-    public async Task GoToCharacterDetailAsync(Character selectedCharacter)
+    private async Task GoToCharacterDetailAsync(Character selectedCharacter)
     {
-        if (selectedCharacter == null)
-        {
-            return;
-        }
-
         await Shell.Current.GoToAsync(nameof(CharacterDetailPage), new Dictionary<string, object>
         {
             { "Character", selectedCharacter }
@@ -60,47 +63,77 @@ public partial class MainViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    public async Task ListenForNfcAsync()
+    private void ListenForNfc()
     {
+        IsWaitingForNfc = true;
+
         _nfcService.StartListening(
-            onCharacterReceived: async (receivedCharacter) =>
+            onCharacterReceived: async void (receivedCharacter) =>
             {
-                _nfcService.StopListening();
-                receivedCharacter.Id = 0;
-                
                 try
                 {
+                    _nfcService.StopListening();
+                    receivedCharacter.Id = 0;
+                    
                     await _databaseService.SaveCharacterAsync(receivedCharacter);
-                
-                    MainThread.BeginInvokeOnMainThread(async () =>
+            
+                    MainThread.BeginInvokeOnMainThread(async void () =>
                     {
-                        Characters.Add(receivedCharacter);
-                        await Shell.Current.DisplayAlertAsync("Success", "Character saved", "OK");
+                        try
+                        {
+                            IsWaitingForNfc = false;
+                            Characters.Add(receivedCharacter);
+                            await Shell.Current.DisplayAlertAsync("Success", "Character saved", "OK");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"UI Error (Success): {ex.Message}");
+                        }
                     });
                 }
                 catch (Exception ex)
                 {
-                    MainThread.BeginInvokeOnMainThread(async () =>
+                    MainThread.BeginInvokeOnMainThread(async void () =>
                     {
-                        await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
+                        try 
+                        {
+                            IsWaitingForNfc = false;
+                            await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
+                        }
+                        catch (Exception innerEx)
+                        {
+                            Console.WriteLine($"UI Error (DB Fail): {innerEx.Message}");
+                        }
                     });
                 }
             },
             onError: (errorMsg) =>
             {
-                MainThread.BeginInvokeOnMainThread(async () =>
+                MainThread.BeginInvokeOnMainThread(async void () =>
                 {
-                    await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
+                    try
+                    {
+                        IsWaitingForNfc = false;
+                        await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"UI Error (NFC Fail): {ex.Message}");
+                    }
                 });
             });
+    }
 
-        await Shell.Current.DisplayAlertAsync("Listen for NFC", "Attach your phone to NFC tag", "OK");
+    [RelayCommand]
+    private void CancelNfc()
+    {
+        IsWaitingForNfc = false;
+        _nfcService.StopListening();
     }
     
     [RelayCommand]
-    private async Task ShowDiceRollerAsync()
+    private static async Task ShowDiceRollerAsync()
     {
         await Shell.Current.GoToAsync(nameof(DiceRollerPage));
     }
-
 }

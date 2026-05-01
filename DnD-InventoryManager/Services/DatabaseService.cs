@@ -58,6 +58,6 @@ public class DatabaseService
     public async Task DeleteCharacterAsync(int id)
     {
         await Init();
-        await _database.DeleteAsync<CharacterEntity>(id);
+        await _database!.DeleteAsync<CharacterEntity>(id);
     }
 }

@@ -5,12 +5,21 @@ namespace DnD_InventoryManager.ViewModels;
 
 public partial class DiceRollerViewModel : ViewModelBase
 {
-    [ObservableProperty] private string _selectedDice = "d20";
-    [ObservableProperty] private int _modifier = 0;
-    [ObservableProperty] private string _resultText = "-";
-    [ObservableProperty] private string _calculationText = "Shake your phone";
-    
-    public List<string> DiceOptions { get; } = new() {"d100", "d20", "d12", "d10", "d8", "d6", "d4"};
+    [ObservableProperty]
+    public partial string SelectedDice { get; set; } = "d20";
+
+    [ObservableProperty]
+    public partial int Modifier { get; set; } = 0;
+
+    [ObservableProperty]
+    public partial string ResultText { get; set; } = "-";
+
+    [ObservableProperty]
+    public partial string CalculationText { get; set; } = "Shake your phone";
+
+    [ObservableProperty]
+    public partial bool IsRolling { get; set; }
+    public static List<string> DiceOptions { get; } = ["d100", "d20", "d12", "d10", "d8", "d6", "d4"];
 
     public DiceRollerViewModel()
     {
@@ -18,22 +27,48 @@ public partial class DiceRollerViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    public void Roll()
+    public async Task RollAsync()
     {
-        int sides = int.Parse(SelectedDice.Replace("d", ""));
-        
-        int roll = new Random().Next(1, sides + 1);
-        int total = roll + Modifier;
-        
-        ResultText = total.ToString();
+        if (IsRolling)
+        {
+            return;
+        }
 
-        string sign = Modifier >= 0 ? "+" : "";
-        CalculationText = $"({roll}) {sign} {Modifier}";
+        try
+        {
+
+            IsRolling = true;
+
+            var sides = int.Parse(SelectedDice.Replace("d", ""));
+
+            var roll = new Random().Next(1, sides + 1);
+            var total = roll + Modifier;
+
+            ResultText = total.ToString();
+
+            var sign = Modifier >= 0 ? "+" : "";
+            CalculationText = $"({roll}) {sign} {Modifier}";
+
+            if (Vibration.Default.IsSupported)
+            {
+                Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(50));
+            }
+            
+            await Task.Delay(2000);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Roll fail: {ex.Message}");
+        }
+        finally
+        {
+            IsRolling = false;
+        }
 
     }
 
     [RelayCommand]
-    private async Task CloseAsync()
+    private static async Task CloseAsync()
     {
         await Shell.Current.GoToAsync("..");
     }
