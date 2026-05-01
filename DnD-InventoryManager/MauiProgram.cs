@@ -37,6 +37,8 @@ public static class MauiProgram
 		builder.Services.AddSingleton<DatabaseService>();
 		
 		builder.Services.AddSingleton<NfcService>();
+
+		builder.Services.AddSingleton<ItemService>();
 		
 		return builder.Build();
 	}

@@ -50,7 +50,7 @@
                                        FontAttributes="Bold" 
                                        FontSize="18" 
                                        TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-                                
+                            
                                 <HorizontalStackLayout Spacing="8">
                                     <Label Text="{Binding Strength, StringFormat='STR: {0}'}" 
                                            FontSize="11" 

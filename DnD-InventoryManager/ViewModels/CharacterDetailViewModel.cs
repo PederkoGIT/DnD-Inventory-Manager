@@ -1,5 +1,7 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DnD_InventoryManager.Api;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
 using DnD_InventoryManager.Views;
@@ -11,13 +13,17 @@ public partial class CharacterDetailViewModel : ViewModelBase
 {
     [ObservableProperty] private Character? character;
 
+    public ObservableCollection<Item> Items { get; } = new();
+    
     private readonly DatabaseService _databaseService;
     private readonly NfcService _nfcService;
-
-    public CharacterDetailViewModel(DatabaseService databaseService, NfcService nfcService)
+    private readonly ItemService _itemService;
+    
+    public CharacterDetailViewModel(DatabaseService databaseService, NfcService nfcService,  ItemService itemService)
     {
         _databaseService = databaseService;
         _nfcService = nfcService;
+        _itemService = itemService;
         Title = "Detail";
     }
 
@@ -35,6 +41,9 @@ public partial class CharacterDetailViewModel : ViewModelBase
             Character = updatedCharacter;
             Title = Character.Name;
         }
+
+        Items.Add(await _itemService.GetEquipmentFromApiAsync("chariot"));
+        Items.Add(await _itemService.GetMagicItemFromApiAsync("adamantine-armor"));
     }
 
     partial void OnCharacterChanged(Character? value)
