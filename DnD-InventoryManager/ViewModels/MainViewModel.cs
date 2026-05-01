@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DnD_InventoryManager.Facades;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
 using DnD_InventoryManager.Views;
@@ -9,17 +10,17 @@ namespace DnD_InventoryManager.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    private readonly DatabaseService _databaseService;
+    private readonly CharacterFacade _characterFacade;
     private readonly NfcService _nfcService;
     
-    public ObservableCollection<Character> Characters { get; } = [];
+    public ObservableCollection<CharacterModel> Characters { get; } = [];
     
     [ObservableProperty]
     public partial bool IsWaitingForNfc { get; set; }
 
-    public MainViewModel(DatabaseService databaseService, NfcService nfcService)
+    public MainViewModel(CharacterFacade characterFacade, NfcService nfcService)
     {
-        _databaseService = databaseService;
+        _characterFacade = characterFacade;
         _nfcService = nfcService;
         Title = "My Characters";
         
@@ -32,7 +33,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private static async Task GoToAddCharacterAsync()
+    private async Task GoToAddCharacterAsync()
     {
         await Shell.Current.GoToAsync(nameof(EditCharacterPage));
     }
@@ -41,8 +42,7 @@ public partial class MainViewModel : ViewModelBase
     public async Task LoadCharactersAsync()
     {
         IsBusy = true;
-        
-        var list = await _databaseService.GetCharactersAsync();
+        var list = await _characterFacade.GetAllAsync();
         
         Characters.Clear();
         foreach (var c in list)
@@ -70,14 +70,14 @@ public partial class MainViewModel : ViewModelBase
         _nfcService.StartListening(
             onCharacterReceived: async void (receivedCharacter) =>
             {
+                _nfcService.StopListening();
+                receivedCharacter.Id = 0;
+                
                 try
                 {
-                    _nfcService.StopListening();
-                    receivedCharacter.Id = 0;
-                    
-                    await _databaseService.SaveCharacterAsync(receivedCharacter);
-            
-                    MainThread.BeginInvokeOnMainThread(async void () =>
+                    await _characterFacade.SaveAsync(receivedCharacter);
+                
+                    MainThread.BeginInvokeOnMainThread(async () =>
                     {
                         try
                         {

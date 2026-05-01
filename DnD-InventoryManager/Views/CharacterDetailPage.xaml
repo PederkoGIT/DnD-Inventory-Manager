@@ -120,11 +120,20 @@
                                                Aspect="AspectFill" />
                                     </Border>
 
-                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                         <Label Text="{Binding Name}"
                                                FontAttributes="Bold" 
                                                FontSize="18" 
                                                TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+                                        <HorizontalStackLayout Spacing="8">
+                                            <Label Text="{Binding Quantity, StringFormat='Count: {0}'}" 
+                                                   FontSize="11" 
+                                                   TextColor="{StaticResource Gray500}" />
+                                            <Label Text="•" TextColor="{StaticResource Gray400}" />
+                                            <Label Text="{Binding Weight, StringFormat='{0} lb'}" 
+                                                   FontSize="11" 
+                                                   TextColor="{StaticResource Gray500}" />
+                                        </HorizontalStackLayout>    
                                     </VerticalStackLayout>
 
                                 </Grid>

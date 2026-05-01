@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DnD_InventoryManager.Api;
+using DnD_InventoryManager.Facades;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
 using DnD_InventoryManager.Views;
@@ -19,13 +19,13 @@ public partial class CharacterDetailViewModel : ViewModelBase
 
     public ObservableCollection<Item> Items { get; } = new();
     
-    private readonly DatabaseService _databaseService;
+    private readonly CharacterFacade _characterFacade;
     private readonly NfcService _nfcService;
     private readonly ItemService _itemService;
     
-    public CharacterDetailViewModel(DatabaseService databaseService, NfcService nfcService,  ItemService itemService)
+    public CharacterDetailViewModel(CharacterFacade characterFacade, NfcService nfcService,  ItemService itemService)
     {
-        _databaseService = databaseService;
+        _characterFacade = characterFacade;
         _nfcService = nfcService;
         _itemService = itemService;
         Title = "Detail";
@@ -38,7 +38,7 @@ public partial class CharacterDetailViewModel : ViewModelBase
             return;
         }
 
-        var updatedCharacter = await _databaseService.GetCharacterById(Character.Id);
+        var updatedCharacter = await _characterFacade.GetByIdAsync(Character.Id);
 
         if (updatedCharacter != null)
         {
@@ -46,7 +46,7 @@ public partial class CharacterDetailViewModel : ViewModelBase
             Title = Character.Name;
         }
 
-        Items.Add(await _itemService.GetEquipmentFromApiAsync("chariot"));
+        Items.Add(await _itemService.GetEquipmentFromApiAsync("crowbar"));
         Items.Add(await _itemService.GetMagicItemFromApiAsync("adamantine-armor"));
     }
 
@@ -85,7 +85,7 @@ public partial class CharacterDetailViewModel : ViewModelBase
         
         if (answer)
         {
-            await _databaseService.DeleteCharacterAsync(Character.Id);
+            await _characterFacade.DeleteAsync(Character.Id);
             
             await Shell.Current.GoToAsync("..");
         }
@@ -137,6 +137,4 @@ public partial class CharacterDetailViewModel : ViewModelBase
         IsWaitingForNfc = false;
         _nfcService.StopWriting();
     }
-    
-    
 }
