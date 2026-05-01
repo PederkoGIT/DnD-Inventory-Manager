@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
+using DnD_InventoryManager.Facades;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
 using DnD_InventoryManager.Views;
@@ -8,13 +9,13 @@ namespace DnD_InventoryManager.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    private readonly DatabaseService _databaseService;
+    private readonly CharacterFacade _characterFacade;
     private readonly NfcService _nfcService;
     public ObservableCollection<Character> Characters { get; } = new();
 
-    public MainViewModel(DatabaseService databaseService, NfcService nfcService)
+    public MainViewModel(CharacterFacade characterFacade, NfcService nfcService)
     {
-        _databaseService = databaseService;
+        _characterFacade = characterFacade;
         _nfcService = nfcService;
         Title = "My Characters";
         
@@ -36,7 +37,7 @@ public partial class MainViewModel : ViewModelBase
     public async Task LoadCharactersAsync()
     {
         IsBusy = true;
-        var list = await _databaseService.GetCharactersAsync();
+        var list = await _characterFacade.GetAllAsync();
         
         Characters.Clear();
         foreach (var c in list)
@@ -70,7 +71,7 @@ public partial class MainViewModel : ViewModelBase
                 
                 try
                 {
-                    await _databaseService.SaveCharacterAsync(receivedCharacter);
+                    await _characterFacade.SaveAsync(receivedCharacter);
                 
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {

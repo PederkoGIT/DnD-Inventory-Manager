@@ -1,4 +1,3 @@
-using DnD_InventoryManager.Mappers;
 using DnD_InventoryManager.Models;
 using SQLite;
 
@@ -6,58 +5,54 @@ namespace DnD_InventoryManager.Services;
 
 public class DatabaseService
 {
-    private SQLiteAsyncConnection? _database;
-    private readonly CharacterMapper _mapper = new();
-
-    private async Task Init()
+    private const string DbName = "DnDManager.db3";
+    private readonly string _dbPath = Path.Combine(FileSystem.AppDataDirectory, DbName); 
+    public void Init()
     {
-        if (_database is not null) return;
-
-        var dbPath = Path.Combine(FileSystem.AppDataDirectory, "DnDManager.db3");
-        _database = new SQLiteAsyncConnection(dbPath);
-
-        await _database.CreateTableAsync<CharacterEntity>();
+        Task.Run(async () =>
+        {
+            var connection = new SQLiteAsyncConnection(_dbPath);
+            await connection.CreateTableAsync<CharacterEntity>();
+            await  connection.CreateTableAsync<ItemEntity>();
+            await connection.CloseAsync();
+        });
     }
 
-    public async Task<Character?> GetCharacterById(int id)
+    public async Task<T> GetById<T>(int id) where T: EntityBase, new()
     {
-        await Init();
-        
-        var entity = await _database!.Table<CharacterEntity>().Where(e => e.Id == id).FirstOrDefaultAsync();
-        
-        if (entity is null) return null;
-        
-        return _mapper.ToModel(entity);
+        var connection = new SQLiteAsyncConnection(_dbPath);   
+        var entity = await connection!.Table<T>().Where(e => e.Id == id).FirstOrDefaultAsync();
+        await connection.CloseAsync();
+        return entity;
     }
 
-    public async Task<List<Character>> GetCharactersAsync()
+    public async Task<List<T>> GetAsync<T>() where T: EntityBase, new()
     {
-        await Init();
-        var entities = await _database!.Table<CharacterEntity>().ToListAsync();
-
-        return entities.Select(e => _mapper.ToModel(e)).ToList();
+        var connection = new SQLiteAsyncConnection(_dbPath);
+        var entities = await connection!.Table<T>().ToListAsync();
+        await connection.CloseAsync();
+        return entities;
     }
 
-    public async Task SaveCharacterAsync(Character character)
+    public async Task SaveAsync<T>(T entity)  where T: EntityBase, new()
     {
-        await Init();
-
-        var entity = _mapper.ToEntity(character);
-
+        var connection = new SQLiteAsyncConnection(_dbPath);
         if (entity.Id != 0)
         {
-            await _database!.UpdateAsync(entity);
+            await connection!.UpdateAsync(entity);
         }
         else
         {
-            await _database!.InsertAsync(entity);
-            character.Id = entity.Id;
+            await connection!.InsertAsync(entity);
         }
+        await connection.CloseAsync();
     }
 
-    public async Task DeleteCharacterAsync(int id)
+    public async Task DeleteAsync<T>(int id) where T: EntityBase, new()
     {
-        await Init();
-        await _database.DeleteAsync<CharacterEntity>(id);
+        var connection = new SQLiteAsyncConnection(_dbPath);
+        await connection.DeleteAsync<T>(id);
+        await connection.CloseAsync();
     }
+     
 }

@@ -1,4 +1,6 @@
-﻿using DnD_InventoryManager.Services;
+﻿using DnD_InventoryManager.Facades;
+using DnD_InventoryManager.Mappers;
+using DnD_InventoryManager.Services;
 using DnD_InventoryManager.ViewModels;
 using DnD_InventoryManager.Views;
 using Microsoft.Extensions.Logging;
@@ -33,6 +35,12 @@ public static class MauiProgram
 
 		builder.Services.AddTransient<DiceRollerPage>();
 		builder.Services.AddTransient<DiceRollerViewModel>();
+
+		builder.Services.AddSingleton<CharacterMapper>();
+		builder.Services.AddSingleton<ItemMapper>();
+		
+		builder.Services.AddSingleton<CharacterFacade>();
+		builder.Services.AddSingleton<ItemFacade>();
 
 		builder.Services.AddSingleton<DatabaseService>();
 		

@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DnD_InventoryManager.Facades;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
 
@@ -8,7 +9,7 @@ namespace DnD_InventoryManager.ViewModels;
 [QueryProperty(nameof(CharacterToEdit), "Character")]
 public partial class EditCharacterViewModel : ViewModelBase
 {
-    private readonly DatabaseService _databaseService;
+    private readonly CharacterFacade _characterFacade;
 
     [ObservableProperty] private Character? characterToEdit;
     
@@ -21,9 +22,9 @@ public partial class EditCharacterViewModel : ViewModelBase
     public List<CharacterSizeEnum> AllSizes =>
         Enum.GetValues(typeof(CharacterSizeEnum)).Cast<CharacterSizeEnum>().ToList();
 
-    public EditCharacterViewModel(DatabaseService databaseService)
+    public EditCharacterViewModel(CharacterFacade characterFacade)
     {
-        _databaseService = databaseService;
+        _characterFacade = characterFacade;
         Title = "New Character";
     }
 
@@ -70,7 +71,7 @@ public partial class EditCharacterViewModel : ViewModelBase
         characterToSave.ImagePath = SelectedImagePath;
         characterToSave.Size = SelectedSize;
 
-        await _databaseService.SaveCharacterAsync(characterToSave);
+        await _characterFacade.SaveAsync(characterToSave);
         await Shell.Current.GoToAsync("..");
     }
 
