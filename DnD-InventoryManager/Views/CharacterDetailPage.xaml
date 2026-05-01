@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
              xmlns:models="clr-namespace:DnD_InventoryManager.Models" 
-             xmlns:apiModels="clr-namespace:DnD_InventoryManager.Api" 
              x:Class="DnD_InventoryManager.Views.CharacterDetailPage"
              x:DataType="vm:CharacterDetailViewModel"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"
@@ -168,7 +167,8 @@
                         FontSize="24" FontAttributes="Bold"
                         BackgroundColor="{StaticResource Primary}"
                         TextColor="{StaticResource White}"
-                        HeightRequest="50" WidthRequest="50" CornerRadius="25">
+                        HeightRequest="50" WidthRequest="50" CornerRadius="25"
+                        Command="{Binding GoToAddItemCommand}">
                     <Button.Shadow>
                         <Shadow Brush="{StaticResource Primary}" Offset="0,4" Radius="8" Opacity="0.4" />
                     </Button.Shadow>

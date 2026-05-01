@@ -32,6 +32,9 @@ public static class MauiProgram
 
 		builder.Services.AddTransient<CharacterDetailPage>();
 		builder.Services.AddTransient<CharacterDetailViewModel>();
+		
+		builder.Services.AddTransient<EditItemPage>();
+		builder.Services.AddTransient<EditItemViewModel>();
 
 		builder.Services.AddTransient<DiceRollerPage>();
 		builder.Services.AddTransient<DiceRollerViewModel>();

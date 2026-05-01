@@ -18,7 +18,7 @@ public class DatabaseService
         });
     }
 
-    public async Task<T> GetById<T>(int id) where T: EntityBase, new()
+    public async Task<T?> GetById<T>(int id) where T: EntityBase, new()
     {
         var connection = new SQLiteAsyncConnection(_dbPath);   
         var entity = await connection!.Table<T>().Where(e => e.Id == id).FirstOrDefaultAsync();
@@ -54,5 +54,12 @@ public class DatabaseService
         await connection.DeleteAsync<T>(id);
         await connection.CloseAsync();
     }
-     
+
+    public async Task<List<ItemEntity>> GetAllByCharacterId(int characterId)
+    {
+        var connection = new SQLiteAsyncConnection(_dbPath);
+        var entities = await connection!.Table<ItemEntity>().Where(e => e.CharacterId.Equals(characterId)).ToListAsync();
+        await connection.CloseAsync();
+        return entities;
+    }
 }

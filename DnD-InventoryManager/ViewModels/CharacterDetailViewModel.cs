@@ -9,7 +9,12 @@ using DnD_InventoryManager.Views;
 namespace DnD_InventoryManager.ViewModels;
 
 [QueryProperty(nameof(Character), "Character")]
-public partial class CharacterDetailViewModel : ViewModelBase
+public partial class CharacterDetailViewModel(
+    CharacterFacade characterFacade,
+    ItemFacade itemFacade,
+    NfcService nfcService,  
+    ItemService itemService
+) : ViewModelBase
 {
     [ObservableProperty]
     public partial Character? Character { get; set; }
@@ -17,20 +22,8 @@ public partial class CharacterDetailViewModel : ViewModelBase
     [ObservableProperty]
     public partial bool IsWaitingForNfc { get; set; }
 
-    public ObservableCollection<Item> Items { get; } = new();
+    public ObservableCollection<Item> Items { get; } = [];
     
-    private readonly CharacterFacade _characterFacade;
-    private readonly NfcService _nfcService;
-    private readonly ItemService _itemService;
-    
-    public CharacterDetailViewModel(CharacterFacade characterFacade, NfcService nfcService,  ItemService itemService)
-    {
-        _characterFacade = characterFacade;
-        _nfcService = nfcService;
-        _itemService = itemService;
-        Title = "Detail";
-    }
-
     public async Task RefreshCharacterAsync()
     {
         if (Character == null || Character.Id == 0)
@@ -38,16 +31,18 @@ public partial class CharacterDetailViewModel : ViewModelBase
             return;
         }
 
-        var updatedCharacter = await _characterFacade.GetByIdAsync(Character.Id);
+        var updatedCharacter = await characterFacade.GetByIdAsync(Character.Id);
 
         if (updatedCharacter != null)
         {
             Character = updatedCharacter;
+            var items = await itemFacade.GetAllByCharacterIdAsync(updatedCharacter.Id);
+            foreach (var item in items)
+            {
+                Items.Add(item);
+            }
             Title = Character.Name;
         }
-
-        Items.Add(await _itemService.GetEquipmentFromApiAsync("crowbar"));
-        Items.Add(await _itemService.GetMagicItemFromApiAsync("adamantine-armor"));
     }
 
     partial void OnCharacterChanged(Character? value)
@@ -85,7 +80,7 @@ public partial class CharacterDetailViewModel : ViewModelBase
         
         if (answer)
         {
-            await _characterFacade.DeleteAsync(Character.Id);
+            await characterFacade.DeleteAsync(Character.Id);
             
             await Shell.Current.GoToAsync("..");
         }
@@ -97,8 +92,8 @@ public partial class CharacterDetailViewModel : ViewModelBase
         if (Character == null) return;
 
         IsWaitingForNfc = true;
-
-        _nfcService.StartWriting(Character,
+        
+        nfcService.StartWriting(Character,
             onSuccess: () =>
             {
                 MainThread.BeginInvokeOnMainThread(async void () =>
@@ -135,6 +130,16 @@ public partial class CharacterDetailViewModel : ViewModelBase
     private void CancelNfc()
     {
         IsWaitingForNfc = false;
-        _nfcService.StopWriting();
+        nfcService.StopWriting();
+    }
+
+    [RelayCommand]
+    private async Task GoToAddItemAsync()
+    {
+        if (Character == null) return;
+        await Shell.Current.GoToAsync(nameof(EditItemPage), new Dictionary<string, object>()
+        {
+            { "Item", new Item{CharacterId = Character.Id} }
+        });
     }
 }
