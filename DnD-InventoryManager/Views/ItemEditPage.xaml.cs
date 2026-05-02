@@ -2,9 +2,9 @@
 
 namespace DnD_InventoryManager.Views;
 
-public partial class EditItemPage : ContentPage
+public partial class ItemEditPage : ContentPage
 {
-    public EditItemPage(EditItemViewModel viewModel)
+    public ItemEditPage(ItemEditViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;
@@ -14,7 +14,7 @@ public partial class EditItemPage : ContentPage
     {
         base.OnAppearing();
 
-        if (BindingContext is EditItemViewModel viewModel)
+        if (BindingContext is ItemEditViewModel viewModel)
         {
             await viewModel.LoadDataAsync();
         }

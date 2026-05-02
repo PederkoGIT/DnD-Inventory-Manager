@@ -12,7 +12,7 @@ public class CharacterFacade(DatabaseService databaseService, CharacterMapper ch
         return entities.Select(e => characterMapper.ToModel(e)).ToList();
     }
 
-    public async Task<Character> GetByIdAsync(int id)
+    public async Task<Character?> GetByIdAsync(int id)
     {
         var entity = await databaseService.GetById<CharacterEntity>(id);
         return characterMapper.ToModel(entity);

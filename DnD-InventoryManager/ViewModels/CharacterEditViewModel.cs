@@ -7,7 +7,7 @@ using DnD_InventoryManager.Services;
 namespace DnD_InventoryManager.ViewModels;
 
 [QueryProperty(nameof(CharacterToEdit), "Character")]
-public partial class EditCharacterViewModel : ViewModelBase
+public partial class CharacterEditViewModel : ViewModelBase
 {
     private readonly CharacterFacade _characterFacade;
 
@@ -28,7 +28,7 @@ public partial class EditCharacterViewModel : ViewModelBase
     public static List<CharacterSizeEnum> AllSizes =>
         Enum.GetValues<CharacterSizeEnum>().Cast<CharacterSizeEnum>().ToList();
 
-    public EditCharacterViewModel(CharacterFacade characterFacade)
+    public CharacterEditViewModel(CharacterFacade characterFacade)
     {
         _characterFacade = characterFacade;
         Title = "New Character";

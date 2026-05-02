@@ -27,14 +27,14 @@ public static class MauiProgram
 		builder.Services.AddSingleton<MainViewModel>();
 		builder.Services.AddSingleton<MainPage>();
 
-		builder.Services.AddTransient<EditCharacterPage>();
-		builder.Services.AddTransient<EditCharacterViewModel>();
+		builder.Services.AddTransient<CharacterEditPage>();
+		builder.Services.AddTransient<CharacterEditViewModel>();
 
 		builder.Services.AddTransient<CharacterDetailPage>();
 		builder.Services.AddTransient<CharacterDetailViewModel>();
 		
-		builder.Services.AddTransient<EditItemPage>();
-		builder.Services.AddTransient<EditItemViewModel>();
+		builder.Services.AddTransient<ItemEditPage>();
+		builder.Services.AddTransient<ItemEditViewModel>();
 
 		builder.Services.AddTransient<DiceRollerPage>();
 		builder.Services.AddTransient<DiceRollerViewModel>();
@@ -49,7 +49,7 @@ public static class MauiProgram
 		
 		builder.Services.AddSingleton<NfcService>();
 
-		builder.Services.AddSingleton<ItemService>();
+		builder.Services.AddSingleton<ApiService>();
 		
 		return builder.Build();
 	}
