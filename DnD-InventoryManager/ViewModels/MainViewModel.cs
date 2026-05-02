@@ -11,7 +11,7 @@ public partial class MainViewModel : ViewModelBase
 {
     private readonly CharacterFacade _characterFacade;
     private readonly NfcService _nfcService;
-    public ObservableCollection<Character> Characters { get; } = new();
+    public ObservableCollection<CharacterModel> Characters { get; } = new();
 
     public MainViewModel(CharacterFacade characterFacade, NfcService nfcService)
     {
@@ -24,7 +24,7 @@ public partial class MainViewModel : ViewModelBase
 
     private void LoadSamples()
     {
-        Characters.Add(new Character { Name = "Johb", Strength = 18, Size = CharacterSizeEnum.Medium});
+        Characters.Add(new CharacterModel() { Name = "Johb", Strength = 18, Size = CharacterSizeEnum.Medium});
     }
 
     [RelayCommand]
@@ -47,7 +47,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    public async Task GoToCharacterDetailAsync(Character selectedCharacter)
+    private async Task GoToCharacterDetailAsync(CharacterModel selectedCharacter)
     {
         if (selectedCharacter == null)
         {
@@ -61,10 +61,10 @@ public partial class MainViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    public async Task ListenForNfcAsync()
+    private async Task ListenForNfcAsync()
     {
         _nfcService.StartListening(
-            onCharacterReceived: async (receivedCharacter) =>
+            onCharacterModelReceived: async (receivedCharacter) =>
             {
                 _nfcService.StopListening();
                 receivedCharacter.Id = 0;

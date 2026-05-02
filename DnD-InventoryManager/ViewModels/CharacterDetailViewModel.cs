@@ -15,7 +15,7 @@ public partial class CharacterDetailViewModel(
     NfcService nfcService
 ) : ViewModelBase
 {
-    [ObservableProperty] private Character? character;
+    [ObservableProperty] private CharacterModel? character;
 
     public ObservableCollection<Item> Items { get; } = [];
     
@@ -40,7 +40,7 @@ public partial class CharacterDetailViewModel(
         }
     }
 
-    partial void OnCharacterChanged(Character? value)
+    partial void OnCharacterChanged(CharacterModel? value)
     {
         if (value != null)
         {

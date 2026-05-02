@@ -7,7 +7,7 @@ using Plugin.NFC;
 
 namespace DnD_InventoryManager.Services;
 
-public class NfcCharacterDto
+public class NfcCharacterModelDto
 {
     [JsonPropertyName("n")] public string Name { get; set; } = string.Empty;
     [JsonPropertyName("s")] public int Strength { get; set; }
@@ -16,11 +16,11 @@ public class NfcCharacterDto
 
 public class NfcService
 {
-    private Action<Character>? _onCharacterReceived;
+    private Action<CharacterModel>? _onCharacterModelReceived;
     private Action<string>? _onError;
     private Action? _onSuccess;
     
-    private Character? _characterToWrite;
+    private CharacterModel? _CharacterModelToWrite;
     private bool _isWriting;
 
     public NfcService()
@@ -29,12 +29,12 @@ public class NfcService
         CrossNFC.Current.OnTagDiscovered += Current_OnTagDiscovered;
     }
 
-    public void StartListening(Action<Character> onCharacterReceived, Action<string> onError)
+    public void StartListening(Action<CharacterModel> onCharacterModelReceived, Action<string> onError)
     {
         if (!CrossNFC.Current.IsAvailable) { onError("NFC is not available on this device"); return; }
         
         _isWriting = false;
-        _onCharacterReceived = onCharacterReceived;
+        _onCharacterModelReceived = onCharacterModelReceived;
         _onError = onError;
         
         CrossNFC.Current.StartListening();
@@ -43,15 +43,15 @@ public class NfcService
     public void StopListening()
     {
         CrossNFC.Current.StopListening();
-        _onCharacterReceived = null;
+        _onCharacterModelReceived = null;
     }
 
-    public void StartWriting(Character character, Action onSuccess, Action<string> onError)
+    public void StartWriting(CharacterModel CharacterModel, Action onSuccess, Action<string> onError)
     {
         if (!CrossNFC.Current.IsAvailable) { onError("NFC is not available on this device"); return; }
         
         _isWriting = true;
-        _characterToWrite = character;
+        _CharacterModelToWrite = CharacterModel;
         _onSuccess = onSuccess;
         _onError = onError;
         
@@ -70,18 +70,18 @@ public class NfcService
             {
                 string json = BrotliHelper.DecompressFromBrotli(record.Payload);
                 
-                var dto = JsonSerializer.Deserialize<NfcCharacterDto>(json);
+                var dto = JsonSerializer.Deserialize<NfcCharacterModelDto>(json);
 
                 if (dto != null)
                 {
-                    var character = new Character
+                    var CharacterModel = new CharacterModel
                     {
                         Name = dto.Name,
                         Strength = dto.Strength,
                         Size = dto.Size,
                         ImagePath = "dotnet_bot.png" 
                     };
-                    _onCharacterReceived?.Invoke(character);
+                    _onCharacterModelReceived?.Invoke(CharacterModel);
                 }
             }
         }
@@ -93,15 +93,15 @@ public class NfcService
 
     private void Current_OnTagDiscovered(ITagInfo tagInfo, bool format)
     {
-        if (!_isWriting || _characterToWrite == null) return;
+        if (!_isWriting || _CharacterModelToWrite == null) return;
 
         try
         {
-            var dto = new NfcCharacterDto
+            var dto = new NfcCharacterModelDto
             {
-                Name = _characterToWrite.Name,
-                Strength = _characterToWrite.Strength,
-                Size = _characterToWrite.Size
+                Name = _CharacterModelToWrite.Name,
+                Strength = _CharacterModelToWrite.Strength,
+                Size = _CharacterModelToWrite.Size
             };
             string json = JsonSerializer.Serialize(dto);
             

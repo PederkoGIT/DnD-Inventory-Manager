@@ -11,7 +11,7 @@ public partial class CharacterEditViewModel : ViewModelBase
 {
     private readonly CharacterFacade _characterFacade;
 
-    [ObservableProperty] private Character? characterToEdit;
+    [ObservableProperty] private CharacterModel? characterToEdit;
     
     [ObservableProperty] private string name = string.Empty;
     [ObservableProperty] private int strength = 10;
@@ -28,7 +28,7 @@ public partial class CharacterEditViewModel : ViewModelBase
         Title = "New Character";
     }
 
-    partial void OnCharacterToEditChanged(Character? value)
+    partial void OnCharacterToEditChanged(CharacterModel? value)
     {
         if (value == null)
         {
@@ -64,7 +64,7 @@ public partial class CharacterEditViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(Name)) return;
 
-        var characterToSave = CharacterToEdit ?? new Character();
+        var characterToSave = CharacterToEdit ?? new CharacterModel();
 
         characterToSave.Name = Name;
         characterToSave.Strength = Strength;
