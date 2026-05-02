@@ -12,7 +12,7 @@
             <Border HorizontalOptions="Center" HeightRequest="160" WidthRequest="160"
                     Stroke="{StaticResource Primary}" StrokeThickness="2">
                 <Border.StrokeShape><RoundRectangle CornerRadius="80" /></Border.StrokeShape>
-                <Image Source="{Binding Item.ImagePath}" Aspect="AspectFill" />
+                <Image Source="{Binding ItemModel.ImagePath}" Aspect="AspectFill" />
             </Border>
         
             <Button Text="Select Image" Command="{Binding PickImageCommand}" 
@@ -21,19 +21,19 @@
 
             <VerticalStackLayout Spacing="5">
                 <Label Text="Item name" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                <Entry Placeholder="Name..." Text="{Binding Item.Name}" />
+                <Entry Placeholder="Name..." Text="{Binding ItemModel.Name}" />
             </VerticalStackLayout>
 
             <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="10">
                 <VerticalStackLayout Grid.Column="0" Spacing="5">
                     <Label Text="Weight in pounds" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                    <Entry Text="{Binding Item.Weight}" Keyboard="Numeric" MaxLength="2" HorizontalTextAlignment="Center"/>
+                    <Entry Text="{Binding ItemModel.Weight}" Keyboard="Numeric" MaxLength="2" HorizontalTextAlignment="Center"/>
                 </VerticalStackLayout>
             </Grid>
 
             <VerticalStackLayout Spacing="5">
                 <Label Text="Description" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                <Entry Placeholder="Description..." Text="{Binding Item.Description}" />
+                <Entry Placeholder="Description..." Text="{Binding ItemModel.Description}" />
             </VerticalStackLayout>
 
             <Button Text="Save Item" Command="{Binding SaveCommand}" Margin="0,20,0,0" />

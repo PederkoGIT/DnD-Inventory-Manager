@@ -7,9 +7,9 @@ namespace DnD_InventoryManager.Mappers;
 [Mapper]
 public partial class ItemMapper
 {
-    public partial Item? ToModel(ItemEntity? item);
+    public partial ItemModel? ToModel(ItemEntity? item);
     
-    public partial ItemEntity ToEntity(Item item);
+    public partial ItemEntity ToEntity(ItemModel itemModel);
     
-    public partial IList<Item> EntitiesToListModels(ICollection<ItemEntity> items);
+    public partial IList<ItemModel> EntitiesToListModels(ICollection<ItemEntity> items);
 }
