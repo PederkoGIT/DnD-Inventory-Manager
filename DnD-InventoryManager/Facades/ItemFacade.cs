@@ -7,21 +7,21 @@ namespace DnD_InventoryManager.Facades;
 
 public class ItemFacade(DatabaseService databaseService, ItemMapper itemMapper)
 {
-    public async Task<ICollection<Item>> GetAllByCharacterIdAsync(int id)
+    public async Task<ICollection<ItemModel>> GetAllByCharacterIdAsync(int id)
     {
         var entities = await databaseService.GetAllByCharacterId(id);
         return itemMapper.EntitiesToListModels(entities);
     }
 
-    public async Task<Item?> GetByIdAsync(int id)
+    public async Task<ItemModel?> GetByIdAsync(int id)
     {
         var entity = await databaseService.GetById<ItemEntity>(id);
         return itemMapper.ToModel(entity);
     }
 
-    public async Task SaveAsync(Item item)
+    public async Task SaveAsync(ItemModel itemModel)
     {
-        var entity = itemMapper.ToEntity(item);
+        var entity = itemMapper.ToEntity(itemModel);
         await databaseService.SaveAsync(entity);
     }
 

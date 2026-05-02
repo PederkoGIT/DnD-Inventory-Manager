@@ -12,7 +12,7 @@
         <CollectionView ItemsSource="{Binding Characters}" 
                         SelectionMode="None">
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Character">
+                <DataTemplate x:DataType="models:CharacterModel">
                     <Border Margin="15,8" 
                             Padding="15" 
                             Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource PrimaryDark}}" 

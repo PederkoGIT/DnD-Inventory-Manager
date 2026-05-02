@@ -5,28 +5,28 @@ using DnD_InventoryManager.Models;
 
 namespace DnD_InventoryManager.ViewModels;
 
-[QueryProperty(nameof(Item), "Item")]
+[QueryProperty(nameof(ItemModel), "Item")]
 public partial class ItemEditViewModel(
     ItemFacade itemFacade
     ) : ViewModelBase
 {
-    [ObservableProperty] public partial Item Item { get; set; } = new() ;
+    [ObservableProperty] public partial ItemModel ItemModel { get; set; } = new() ;
 
     public async Task LoadDataAsync()
     {
         Title = "Add Item";
-        var itemFromDb = await itemFacade.GetByIdAsync(Item.Id);
+        var itemFromDb = await itemFacade.GetByIdAsync(ItemModel.Id);
         if (itemFromDb is not null)
         {
             Title = "Edit Item";
-            Item = itemFromDb;
+            ItemModel = itemFromDb;
         }
     }
 
     [RelayCommand]
     private async Task SaveAsync()
     {
-        await itemFacade.SaveAsync(Item);
+        await itemFacade.SaveAsync(ItemModel);
         await Shell.Current.GoToAsync("..");
     }
 }

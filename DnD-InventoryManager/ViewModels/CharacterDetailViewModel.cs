@@ -21,7 +21,7 @@ public partial class CharacterDetailViewModel(
     [ObservableProperty]
     public partial bool IsWaitingForNfc { get; set; }
 
-    public ObservableCollection<Item> Items { get; } = [];
+    public ObservableCollection<ItemModel> Items { get; } = [];
     
     public async Task RefreshCharacterAsync()
     {
@@ -138,7 +138,7 @@ public partial class CharacterDetailViewModel(
         if (Character == null) return;
         await Shell.Current.GoToAsync(nameof(ItemEditPage), new Dictionary<string, object>()
         {
-            { "Item", new Item{CharacterId = Character.Id} }
+            { "Item", new ItemModel{CharacterId = Character.Id} }
         });
     }
 }

@@ -86,7 +86,7 @@
                 <CollectionView ItemsSource="{Binding Items}"
                                 SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:Item">
+                        <DataTemplate x:DataType="models:ItemModel">
                             <Border Margin="15,8" 
                             Padding="12" 
                             Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" 

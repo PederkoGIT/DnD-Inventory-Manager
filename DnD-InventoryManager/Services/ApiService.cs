@@ -7,20 +7,20 @@ public class ApiService
 {
     private readonly EquipmentClient _equipmentClient = new(new HttpClient());
     
-    public async Task<Item> GetEquipmentFromApiAsync(string index)
+    public async Task<ItemModel> GetEquipmentFromApiAsync(string index)
     {
         var equipment = await _equipmentClient.EquipmentAsync(index);
-        return new Item
+        return new ItemModel
         {
             Name = equipment.AdditionalProperties["name"] as string ?? "",
             Weight = equipment.AdditionalProperties["weight"] as double? ?? 0,
         };
     }
 
-    public async Task<Item> GetMagicItemFromApiAsync(string index)
+    public async Task<ItemModel> GetMagicItemFromApiAsync(string index)
     {
         var magicItem = await _equipmentClient.MagicItemsAsync(index);
-        return new Item
+        return new ItemModel
         {
             Name = magicItem.Name,
             Description = string.Join(", ", magicItem.Desc)
