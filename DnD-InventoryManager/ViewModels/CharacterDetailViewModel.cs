@@ -30,6 +30,7 @@ public partial class CharacterDetailViewModel(
             return;
         }
 
+        Items.Clear();
         var updatedCharacter = await characterFacade.GetByIdAsync(Character.Id);
 
         if (updatedCharacter != null)
