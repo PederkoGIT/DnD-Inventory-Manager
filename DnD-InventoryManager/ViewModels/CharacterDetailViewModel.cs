@@ -136,10 +136,27 @@ public partial class CharacterDetailViewModel(
     [RelayCommand]
     private async Task GoToAddItemAsync()
     {
-        if (Character == null) return;
+        if (Character == null)
+        {
+            return;
+        }
         await Shell.Current.GoToAsync(nameof(ItemEditPage), new Dictionary<string, object>()
         {
             { "Item", new ItemModel{CharacterId = Character.Id} }
+        });
+    }
+
+    [RelayCommand]
+    private async Task GoToItemDetailAsync(ItemModel item)
+    {
+        if (Character == null)
+        {
+            return;
+        }
+
+        await Shell.Current.GoToAsync(nameof(ItemDetailPage), new Dictionary<string, object>()
+        {
+            { "Item", item }
         });
     }
 }

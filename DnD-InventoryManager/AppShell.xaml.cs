@@ -11,5 +11,6 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(CharacterDetailPage), typeof(CharacterDetailPage));
         Routing.RegisterRoute(nameof(DiceRollerPage), typeof(DiceRollerPage));
         Routing.RegisterRoute(nameof(ItemEditPage), typeof(ItemEditPage));
+        Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
     }
 }

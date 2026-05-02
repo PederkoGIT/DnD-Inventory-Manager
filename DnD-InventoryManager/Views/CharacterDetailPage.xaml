@@ -101,9 +101,9 @@
                                 </Border.Shadow>
 
                                 <Border.GestureRecognizers>
-                                    <!-- <TapGestureRecognizer  -->
-                                    <!--     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=GoToCharacterDetailCommand}" -->
-                                    <!--     CommandParameter="{Binding .}" /> -->
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CharacterDetailViewModel}}, Path=GoToItemDetailCommand}"
+                                        CommandParameter="{Binding .}" />
                                 </Border.GestureRecognizers>
 
                                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="15">
