@@ -1,6 +1,6 @@
 ﻿using SQLite;
 
-namespace DnD_InventoryManager.Models;
+namespace DnD_InventoryManager.Entities;
 
 public class EntityBase
 {

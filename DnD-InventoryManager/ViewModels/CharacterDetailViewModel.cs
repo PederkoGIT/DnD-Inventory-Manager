@@ -44,7 +44,7 @@ public partial class CharacterDetailViewModel(
         }
     }
 
-    partial void OnCharacterChanged(Character? value)
+    partial void OnCharacterChanged(CharacterModel? value)
     {
         if (value != null)
         {

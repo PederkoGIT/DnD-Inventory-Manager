@@ -29,7 +29,7 @@ public partial class MainViewModel : ViewModelBase
 
     private void LoadSamples()
     {
-        Characters.Add(new() { Name = "Johb", Strength = 18, Size = CharacterSizeEnum.Medium});
+        Characters.Add(new CharacterModel() { Name = "Johb", Strength = 18, Size = CharacterSizeEnum.Medium});
     }
 
     [RelayCommand]
@@ -54,7 +54,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task GoToCharacterDetailAsync(Character selectedCharacter)
+    private async Task GoToCharacterDetailAsync(CharacterModel selectedCharacter)
     {
         await Shell.Current.GoToAsync(nameof(CharacterDetailPage), new Dictionary<string, object>
         {
@@ -63,12 +63,12 @@ public partial class MainViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    private void ListenForNfc()
+    private async Task ListenForNfcAsync()
     {
         IsWaitingForNfc = true;
 
         _nfcService.StartListening(
-            onCharacterReceived: async void (receivedCharacter) =>
+            onCharacterModelReceived: async void (receivedCharacter) =>
             {
                 _nfcService.StopListening();
                 receivedCharacter.Id = 0;

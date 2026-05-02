@@ -1,4 +1,5 @@
-﻿using DnD_InventoryManager.Mappers;
+﻿using DnD_InventoryManager.Entities;
+using DnD_InventoryManager.Mappers;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
 
@@ -6,23 +7,22 @@ namespace DnD_InventoryManager.Facades;
 
 public class CharacterFacade(DatabaseService databaseService, CharacterMapper characterMapper)
 {
-    public async Task<List<Character>> GetAllAsync()
+    public async Task<ICollection<CharacterModel>> GetAllAsync()
     {
         var entities = await databaseService.GetAsync<CharacterEntity>();
-        return entities.Select(e => characterMapper.ToModel(e)).ToList();
+        return characterMapper.EntitiesToListModels(entities);
     }
 
-    public async Task<Character?> GetByIdAsync(int id)
+    public async Task<CharacterModel?> GetByIdAsync(int id)
     {
         var entity = await databaseService.GetById<CharacterEntity>(id);
         return characterMapper.ToModel(entity);
     }
 
-    public async Task<Character> SaveAsync(Character character)
+    public async Task SaveAsync(CharacterModel characterModel)
     {
-        var entity = characterMapper.ToEntity(character);
+        var entity = characterMapper.ToEntity(characterModel);
         await databaseService.SaveAsync(entity);
-        return characterMapper.ToModel(entity);
     }
 
     public async Task DeleteAsync(int id)

@@ -1,4 +1,4 @@
-using DnD_InventoryManager.Models;
+using DnD_InventoryManager.Entities;
 using SQLite;
 
 namespace DnD_InventoryManager.Services;

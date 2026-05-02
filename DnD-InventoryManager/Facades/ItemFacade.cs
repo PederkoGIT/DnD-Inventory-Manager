@@ -1,4 +1,5 @@
-﻿using DnD_InventoryManager.Mappers;
+﻿using DnD_InventoryManager.Entities;
+using DnD_InventoryManager.Mappers;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
 

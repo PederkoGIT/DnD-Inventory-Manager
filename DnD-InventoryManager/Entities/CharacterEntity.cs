@@ -1,6 +1,6 @@
 using SQLite;
 
-namespace DnD_InventoryManager.Models;
+namespace DnD_InventoryManager.Entities;
 
 [Table("Characters")]
 public class CharacterEntity : EntityBase
