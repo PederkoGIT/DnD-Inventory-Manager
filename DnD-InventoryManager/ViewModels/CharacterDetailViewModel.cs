@@ -16,7 +16,7 @@ public partial class CharacterDetailViewModel(
 ) : ViewModelBase
 {
     [ObservableProperty]
-    public partial Character? Character { get; set; }
+    public partial CharacterModel? Character { get; set; }
 
     [ObservableProperty]
     public partial bool IsWaitingForNfc { get; set; }
