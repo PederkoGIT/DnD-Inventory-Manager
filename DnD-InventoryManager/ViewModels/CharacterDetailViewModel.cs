@@ -12,8 +12,7 @@ namespace DnD_InventoryManager.ViewModels;
 public partial class CharacterDetailViewModel(
     CharacterFacade characterFacade,
     ItemFacade itemFacade,
-    NfcService nfcService,  
-    ItemService itemService
+    NfcService nfcService
 ) : ViewModelBase
 {
     [ObservableProperty] private Character? character;
@@ -57,7 +56,7 @@ public partial class CharacterDetailViewModel(
             return;
         }
         
-        await Shell.Current.GoToAsync(nameof(EditCharacterPage), new Dictionary<string, object>
+        await Shell.Current.GoToAsync(nameof(CharacterEditPage), new Dictionary<string, object>
         {
             { "Character", Character }
         });
@@ -110,7 +109,7 @@ public partial class CharacterDetailViewModel(
     private async Task GoToAddItemAsync()
     {
         if (Character == null) return;
-        await Shell.Current.GoToAsync(nameof(EditItemPage), new Dictionary<string, object>()
+        await Shell.Current.GoToAsync(nameof(ItemEditPage), new Dictionary<string, object>()
         {
             { "Item", new Item{CharacterId = Character.Id} }
         });

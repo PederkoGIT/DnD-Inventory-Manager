@@ -30,7 +30,7 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task GoToAddCharacterAsync()
     {
-        await Shell.Current.GoToAsync(nameof(EditCharacterPage));
+        await Shell.Current.GoToAsync(nameof(CharacterEditPage));
     }
 
     [RelayCommand]

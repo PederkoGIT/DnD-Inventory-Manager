@@ -5,16 +5,11 @@ using DnD_InventoryManager.Models;
 
 namespace DnD_InventoryManager.ViewModels;
 
-// [QueryProperty(nameof(ItemId), "ItemId")]
-// [QueryProperty(nameof(CharacterId), "CharacterId")]
 [QueryProperty(nameof(Item), "Item")]
-public partial class EditItemViewModel(
+public partial class ItemEditViewModel(
     ItemFacade itemFacade
     ) : ViewModelBase
 {
-    // private int ItemId { get; init; } = 0;
-    // private int CharacterId { get; init; }
-    
     [ObservableProperty] public partial Item Item { get; set; } = new() ;
 
     public async Task LoadDataAsync()

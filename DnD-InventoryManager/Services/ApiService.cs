@@ -3,7 +3,7 @@ using DnD_InventoryManager.Models;
 
 namespace DnD_InventoryManager.Services;
 
-public class ItemService
+public class ApiService
 {
     private readonly EquipmentClient _equipmentClient = new(new HttpClient());
     

@@ -6,7 +6,8 @@ namespace DnD_InventoryManager.Mappers;
 [Mapper]
 public partial class CharacterMapper
 {
-    public partial Character ToModel(CharacterEntity entity);
+    public partial Character? ToModel(CharacterEntity? entity);
 
+    [MapperIgnoreSource(nameof(Character.CarryingCapacity))]
     public partial CharacterEntity ToEntity(Character model);
 }
