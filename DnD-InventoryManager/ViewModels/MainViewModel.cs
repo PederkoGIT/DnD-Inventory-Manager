@@ -11,6 +11,7 @@ namespace DnD_InventoryManager.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     private readonly CharacterFacade _characterFacade;
+    private readonly ItemFacade _itemFacade;
     private readonly NfcService _nfcService;
     
     public ObservableCollection<CharacterModel> Characters { get; } = [];
@@ -18,9 +19,10 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     public partial bool IsWaitingForNfc { get; set; }
 
-    public MainViewModel(CharacterFacade characterFacade, NfcService nfcService)
+    public MainViewModel(CharacterFacade characterFacade, ItemFacade itemFacade , NfcService nfcService)
     {
         _characterFacade = characterFacade;
+        _itemFacade =  itemFacade;
         _nfcService = nfcService;
         Title = "My Characters";
         
@@ -68,60 +70,53 @@ public partial class MainViewModel : ViewModelBase
         IsWaitingForNfc = true;
 
         _nfcService.StartListening(
-            onCharacterModelReceived: async void (receivedCharacter) =>
+            onItemModelReceived: (recievedItem) =>
             {
                 _nfcService.StopListening();
-                receivedCharacter.Id = 0;
                 
-                try
-                {
-                    await _characterFacade.SaveAsync(receivedCharacter);
-                
-                    MainThread.BeginInvokeOnMainThread(async () =>
-                    {
-                        try
-                        {
-                            IsWaitingForNfc = false;
-                            Characters.Add(receivedCharacter);
-                            await Shell.Current.DisplayAlertAsync("Success", "Character saved", "OK");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"UI Error (Success): {ex.Message}");
-                        }
-                    });
-                }
-                catch (Exception ex)
-                {
-                    MainThread.BeginInvokeOnMainThread(async void () =>
-                    {
-                        try 
-                        {
-                            IsWaitingForNfc = false;
-                            await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
-                        }
-                        catch (Exception innerEx)
-                        {
-                            Console.WriteLine($"UI Error (DB Fail): {innerEx.Message}");
-                        }
-                    });
-                }
-            },
-            onError: (errorMsg) =>
-            {
-                MainThread.BeginInvokeOnMainThread(async void () =>
+                MainThread.BeginInvokeOnMainThread(async () =>
                 {
                     try
                     {
                         IsWaitingForNfc = false;
-                        await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
+
+                        if (Characters.Count == 0)
+                        {
+                            await Shell.Current.DisplayAlertAsync("Error", "No characters found", "OK");
+                            return;
+                        }
+
+                        var characterNames = Characters.Select(c => c.Name).ToArray();
+                        var selectedName = await Shell.Current.DisplayActionSheetAsync("Who gets this item?", "Cancel",
+                            null, characterNames);
+
+                        if (selectedName == "Cancel" || string.IsNullOrEmpty(selectedName))
+                        {
+                            return;
+                        }
+
+                        var selectedCharacter = Characters.FirstOrDefault(c => c.Name == selectedName);
+                        recievedItem.CharacterId = selectedCharacter.Id;
+
+                        await _itemFacade.SaveAsync(recievedItem);
+                        await Shell.Current.DisplayAlertAsync("Success",
+                            $"{recievedItem.Name} was added to {selectedCharacter.Name}'s inventory!", "OK");
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"UI Error (NFC Fail): {ex.Message}");
+                        Console.WriteLine($"UI Error (Success): {ex.Message}");
                     }
+                } );
+            },
+            onError: (errorMsg) =>
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    IsWaitingForNfc = false;
+                    await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
                 });
-            });
+            }
+            );
     }
 
     [RelayCommand]

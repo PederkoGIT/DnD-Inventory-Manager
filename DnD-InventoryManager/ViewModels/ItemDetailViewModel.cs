@@ -2,16 +2,20 @@
 using CommunityToolkit.Mvvm.Input;
 using DnD_InventoryManager.Facades;
 using DnD_InventoryManager.Models;
+using DnD_InventoryManager.Services;
 using DnD_InventoryManager.Views;
 
 namespace DnD_InventoryManager.ViewModels;
 
 [QueryProperty("Item", nameof(Item))]
 public partial class ItemDetailViewModel(
+    NfcService nfcService,
     ItemFacade itemFacade
     ) : ViewModelBase
 {
     [ObservableProperty] public partial ItemModel? Item { get; set; } = new();
+    
+    [ObservableProperty] public partial bool IsWaitingForNfc { get; set; }
 
     public async Task RefreshItemAsync()
     {
@@ -57,5 +61,55 @@ public partial class ItemDetailViewModel(
             await itemFacade.DeleteAsync(Item.Id);
             await Shell.Current.GoToAsync("..");
         }
+    }
+
+    [RelayCommand]
+    private void WriteToNfc()
+    {
+        if (Item == null)
+        {
+            return;
+        }
+        
+        IsWaitingForNfc = true;
+        
+        nfcService.StartWriting(Item,
+            onSuccess: () =>
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    try
+                    {
+                        IsWaitingForNfc = false;
+                        await Shell.Current.DisplayAlertAsync("Success", "Item written to NFC tag!", "OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Success popup fail: {ex.Message}");
+                    }
+                });
+            },
+            onError: (errorMsg) =>
+            {
+                MainThread.BeginInvokeOnMainThread(async () => 
+                {
+                    try
+                    {
+                        IsWaitingForNfc = false;
+                        await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error popup fail: {ex.Message}");
+                    }
+                });
+            });
+    }
+    
+    [RelayCommand]
+    private void CancelNfc()
+    {
+        IsWaitingForNfc = false;
+        nfcService.StopWriting();
     }
 }
