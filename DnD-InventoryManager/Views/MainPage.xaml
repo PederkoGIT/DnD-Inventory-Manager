@@ -12,7 +12,7 @@
         <CollectionView ItemsSource="{Binding Characters}" 
                         SelectionMode="None">
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Character">
+                <DataTemplate x:DataType="models:CharacterModel">
                     <Border Margin="15,8" 
                             Padding="15" 
                             Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource PrimaryDark}}" 
@@ -48,7 +48,7 @@
                                 <Label Text="{Binding Name}" 
                                        FontAttributes="Bold" FontSize="18" 
                                        TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-                                
+                            
                                 <HorizontalStackLayout Spacing="8">
                                     <Label Text="{Binding Strength, StringFormat='STR: {0}'}" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
                                     <Label Text="•" TextColor="{StaticResource Gray400}" />

@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             xmlns:models="clr-namespace:DnD_InventoryManager.Models"
+             x:Class="DnD_InventoryManager.Views.ItemDetailPage"
+             x:DataType="vm:ItemDetailViewModel"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"
+             Title="{Binding Title}">
+             
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Edit" Command="{Binding GoToEditItemCommand}" Priority="0" />
+        <ToolbarItem Text="Delete" Command="{Binding DeleteItemCommand}" Priority="1" />
+    </ContentPage.ToolbarItems>
+    
+    <Border Margin="15,15,15,5" 
+            Padding="20"
+            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource PrimaryDark}}"
+            StrokeThickness="1"
+            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="20" />
+        </Border.StrokeShape>
+        <Border.Shadow>
+            <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.15" />
+        </Border.Shadow>
+        
+        <VerticalStackLayout Spacing="20" HorizontalOptions="Center">
+            <Border HeightRequest="90" WidthRequest="90"
+                    Stroke="{StaticResource Primary}" StrokeThickness="2"
+                    HorizontalOptions="Start">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="45" />
+                </Border.StrokeShape>
+                <Image Source="{Binding Item.ImagePath}" Aspect="AspectFill"  />
+            </Border>
+            
+            <Label Text="{Binding Item.Name}" 
+                   FontSize="26" FontAttributes="Bold" 
+                   TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+            
+            <HorizontalStackLayout Spacing="8" >
+                <Label Text="{Binding Item.Weight, StringFormat='{0}lb'}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                <Label Text="•" TextColor="{StaticResource Gray400}" />
+                <Label Text="{Binding Item.Quantity, StringFormat='Amount: {0}'}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+            </HorizontalStackLayout>
+            
+            <Label Text="{Binding Item.Description, StringFormat='{0}'}" HorizontalOptions="Start" FontSize="13" FontAttributes="None" TextColor="{StaticResource Gray500}" />
+            
+            
+        </VerticalStackLayout>
+        
+    </Border>
+</ContentPage>

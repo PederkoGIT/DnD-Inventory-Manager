@@ -2,9 +2,9 @@ using DnD_InventoryManager.ViewModels;
 
 namespace DnD_InventoryManager.Views;
 
-public partial class EditCharacterPage : ContentPage
+public partial class CharacterEditPage : ContentPage
 {
-    public EditCharacterPage(EditCharacterViewModel viewModel)
+    public CharacterEditPage(CharacterEditViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;

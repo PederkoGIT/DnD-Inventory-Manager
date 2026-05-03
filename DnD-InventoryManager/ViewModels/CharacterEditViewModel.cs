@@ -1,17 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DnD_InventoryManager.Facades;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
 
 namespace DnD_InventoryManager.ViewModels;
 
 [QueryProperty(nameof(CharacterToEdit), "Character")]
-public partial class EditCharacterViewModel : ViewModelBase
+public partial class CharacterEditViewModel : ViewModelBase
 {
-    private readonly DatabaseService _databaseService;
+    private readonly CharacterFacade _characterFacade;
 
     [ObservableProperty]
-    public partial Character? CharacterToEdit { get; set; }
+    public partial CharacterModel? CharacterToEdit { get; set; }
     [ObservableProperty]
     public partial string Name { get; set; } = string.Empty;
 
@@ -27,13 +28,13 @@ public partial class EditCharacterViewModel : ViewModelBase
     public static List<CharacterSizeEnum> AllSizes =>
         Enum.GetValues<CharacterSizeEnum>().Cast<CharacterSizeEnum>().ToList();
 
-    public EditCharacterViewModel(DatabaseService databaseService)
+    public CharacterEditViewModel(CharacterFacade characterFacade)
     {
-        _databaseService = databaseService;
+        _characterFacade = characterFacade;
         Title = "New Character";
     }
 
-    partial void OnCharacterToEditChanged(Character? value)
+    partial void OnCharacterToEditChanged(CharacterModel? value)
     {
         if (value == null)
         {
@@ -77,14 +78,14 @@ public partial class EditCharacterViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(Name)) return;
 
-        var characterToSave = CharacterToEdit ?? new Character();
+        var characterToSave = CharacterToEdit ?? new CharacterModel();
 
         characterToSave.Name = Name;
         characterToSave.Strength = Strength;
         characterToSave.ImagePath = SelectedImagePath;
         characterToSave.Size = SelectedSize;
 
-        await _databaseService.SaveCharacterAsync(characterToSave);
+        await _characterFacade.SaveAsync(characterToSave);
         await Shell.Current.GoToAsync("..");
     }
 

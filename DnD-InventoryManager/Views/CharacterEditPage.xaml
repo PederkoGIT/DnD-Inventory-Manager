@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
-             x:Class="DnD_InventoryManager.Views.EditCharacterPage"
-             x:DataType="vm:EditCharacterViewModel"
+             x:Class="DnD_InventoryManager.Views.CharacterEditPage"
+             x:DataType="vm:CharacterEditViewModel"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"
              Title="{Binding Title}">
+
 
     <ScrollView>
         <VerticalStackLayout Padding="20,30,20,40" Spacing="25">
@@ -44,7 +46,7 @@
 
                     <VerticalStackLayout Spacing="8">
                         <Label Text="SIZE CLASS" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
-                        <Picker Title="Select size..." ItemsSource="{x:Static vm:EditCharacterViewModel.AllSizes}" SelectedItem="{Binding SelectedSize}" FontSize="16" />
+                        <Picker Title="Select size..." ItemsSource="{x:Static vm:CharacterEditViewModel.AllSizes}" SelectedItem="{Binding SelectedSize}" FontSize="16" />
                     </VerticalStackLayout>
                     
                 </VerticalStackLayout>
