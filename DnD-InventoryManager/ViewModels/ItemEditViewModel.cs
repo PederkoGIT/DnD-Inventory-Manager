@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using DnD_InventoryManager.Facades;
 using DnD_InventoryManager.Models;
+using DnD_InventoryManager.Views;
 
 namespace DnD_InventoryManager.ViewModels;
 
@@ -28,5 +29,14 @@ public partial class ItemEditViewModel(
     {
         await itemFacade.SaveAsync(ItemModel);
         await Shell.Current.GoToAsync("..");
+    }
+    
+    [RelayCommand]
+    private async Task GetItemFromApi()
+    {
+        await Shell.Current.GoToAsync(nameof(ItemFromApiPage), new Dictionary<string, object>()
+        {
+            {"Item", ItemModel}
+        });
     }
 }

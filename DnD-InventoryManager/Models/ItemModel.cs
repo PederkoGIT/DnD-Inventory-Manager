@@ -9,4 +9,5 @@ public class ItemModel
     public double Weight { get; set; }
     public int Quantity { get; set; } = 1;
     public int CharacterId { get; set; }
+    public double TotalWeight => Weight * Quantity;
 }

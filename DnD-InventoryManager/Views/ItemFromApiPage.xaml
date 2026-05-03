@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             x:Class="DnD_InventoryManager.Views.ItemFromApiPage"
+             x:DataType="vm:ItemFromApiVIewModel"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+             Title="Get Base DnD Item">
+    
+    <ContentPage.Content>
+        <VerticalStackLayout Padding="25" Spacing="20">
+            <HorizontalStackLayout Padding="10" Spacing="10">
+                <Entry Placeholder="name of a item" Text="{Binding Index}"/>
+                <Picker Title="Select category..." ItemsSource="{x:Static vm:ItemFromApiVIewModel.AllCategories}" SelectedItem="{Binding ItemCategory}" FontSize="16" />
+            </HorizontalStackLayout>
+            <Button Text="Select Image" Command="{Binding GetItemFromApiCommand}" 
+                    BackgroundColor="{StaticResource Secondary}" 
+                    TextColor="{StaticResource SecondaryDarkText}"/>
+            
+            <Label Text="{Binding Item.Name}"/>
+            <Label Text="{Binding Item.Weight}"/>
+            <Label Text="{Binding Item.Description}"/>
+            <Image Source="{Binding Item.ImagePath}" Aspect="AspectFill"  />
+            
+            <Button Text="Use Template" Command="{Binding UseThisItemCommand}" Margin="0,20,0,0" />
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>
