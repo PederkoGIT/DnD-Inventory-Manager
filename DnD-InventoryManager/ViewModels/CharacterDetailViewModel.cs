@@ -92,50 +92,53 @@ public partial class CharacterDetailViewModel(
     }
     
     [RelayCommand]
-    private void WriteToNfc()
+    private void ListenForNfc()
     {
         if (Character == null) return;
 
         IsWaitingForNfc = true;
         
-        nfcService.StartWriting(Character,
-            onSuccess: () =>
+        nfcService.StartListening(
+            onItemModelReceived: (recievedItem) =>
             {
-                MainThread.BeginInvokeOnMainThread(async void () =>
+                nfcService.StopListening();
+                
+                MainThread.BeginInvokeOnMainThread(async () =>
                 {
                     try
                     {
                         IsWaitingForNfc = false;
-                        await Shell.Current.DisplayAlertAsync("Success", "Character written to NFC tag", "OK");
+
+                        recievedItem.CharacterId = Character.Id;
+
+                        await itemFacade.SaveAsync(recievedItem);
+                        Items.Add(recievedItem);
+
+                        await Shell.Current.DisplayAlertAsync("Loot acquired!",
+                            $"{recievedItem.Name} added to inventory.", "OK");
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Success popup fail: {ex.Message}");
+                        Console.WriteLine($"UI Error (Success): {ex.Message}");
                     }
                 });
             },
             onError: (errorMsg) =>
             {
-                MainThread.BeginInvokeOnMainThread(async void () => 
+                MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    try
-                    {
-                        IsWaitingForNfc = false;
-                        await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error popup fail: {ex.Message}");
-                    }
+                    IsWaitingForNfc = false;
+                    await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
                 });
-            });
+            }
+            );
     }
 
     [RelayCommand]
     private void CancelNfc()
     {
         IsWaitingForNfc = false;
-        nfcService.StopWriting();
+        nfcService.StopListening();
     }
 
     [RelayCommand]

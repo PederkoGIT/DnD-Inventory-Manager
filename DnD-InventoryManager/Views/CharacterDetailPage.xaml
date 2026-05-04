@@ -168,7 +168,7 @@
                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}"
                         TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
                         HeightRequest="50" WidthRequest="50" CornerRadius="25"
-                        Command="{Binding WriteToNfcCommand}" />
+                        Command="{Binding ListenForNfcCommand}" />
 
                 <Button Text="+"
                         FontSize="24" FontAttributes="Bold"
@@ -206,7 +206,7 @@
                     <ActivityIndicator IsRunning="True" Color="{StaticResource Primary}" HeightRequest="45" WidthRequest="45" />
                     
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="Ready to Write" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" HorizontalOptions="Center" />
+                        <Label Text="Ready to Read" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" HorizontalOptions="Center" />
                         <Label Text="Approach an NFC tag to write character data." FontSize="14" TextColor="{StaticResource Gray500}" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                     
