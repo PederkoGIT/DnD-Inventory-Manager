@@ -52,15 +52,19 @@ public partial class QrScanViewModel : ViewModelBase
             return;
         }
 
-        var character = result.Data;
-        character.Id = 0;
-        await _databaseService.SaveCharacterAsync(character);
-
-        OnCharacterScanned?.Invoke(character);
-
         var item = result.Data;
         item.CharacterId = CharacterId;
         await _itemFacade.SaveAsync(item);
+        
+        try
+        {
+            Microsoft.Maui.Devices.Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(200));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Vibration failed: {ex.Message}");
+        }
+        
         await MainThread.InvokeOnMainThreadAsync(async () =>
         {
             await Shell.Current.DisplayAlertAsync(
