@@ -1,61 +1,101 @@
-﻿using System.Text.Json;
+﻿using System.IO.Compression;
+using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using DnD_InventoryManager.Models;
 
 namespace DnD_InventoryManager.Services;
 
-public class QrCharacterDto
+public class QrItemDto
 {
     [JsonPropertyName("n")] public string Name { get; set; } = string.Empty;
-    [JsonPropertyName("s")] public int Strength { get; set; }
-    [JsonPropertyName("z")] public CharacterSizeEnum Size { get; set; }
+    [JsonPropertyName("d")] public string Description { get; set; } = string.Empty;
+    [JsonPropertyName("w")] public double Weight { get; set; }
+    [JsonPropertyName("q")] public int Quantity { get; set; }
 }
 
 public class QrService
 {
-    public string EncodeCharacter(Character character)
+    public string EncodeItem(ItemModel item)
     {
-        var dto = new QrCharacterDto
+        var dto = new QrItemDto
         {
-            Name = character.Name,
-            Strength = character.Strength,
-            Size = character.Size
+            Name = item.Name,
+            Description = item.Description,
+            Weight = item.Weight,
+            Quantity = item.Quantity
         };
-        return JsonSerializer.Serialize(dto);
+        
+        string jsonText = JsonSerializer.Serialize(dto);
+        
+        return Compress(jsonText);
     }
-    
-    public (bool IsSuccess, Character? Data, string ErrorMessage) DecodeCharacter(string payload)
+
+    public (bool IsSuccess, ItemModel? Data, string ErrorMessage) DecodeItem(string payload)
     {
         if (string.IsNullOrWhiteSpace(payload))
-        {
             return (false, null, "Naskenovaný QR kód je prázdny.");
-        }
 
         try
         {
-            var dto = JsonSerializer.Deserialize<QrCharacterDto>(payload);
+            string jsonText = Decompress(payload);
+            
+            var dto = JsonSerializer.Deserialize<QrItemDto>(jsonText);
             if (dto == null)
-            {
                 return (false, null, "Dáta z QR kódu sa nepodarilo rozpoznať.");
-            }
 
-            var character = new Character
+            var item = new ItemModel
             {
                 Name = dto.Name,
-                Strength = dto.Strength,
-                Size = dto.Size,
+                Description = dto.Description,
+                Weight = dto.Weight,
+                Quantity = dto.Quantity,
                 ImagePath = "dotnet_bot.png"
             };
-        
-            return (true, character, string.Empty);
+
+            return (true, item, string.Empty);
+        }
+        catch (FormatException)
+        {
+            return (false, null, "Naskenovaný QR kód nie je v správnom komprimovanom formáte.");
         }
         catch (JsonException ex)
         {
-            return (false, null, $"Naskenovaný kód nie je platná D&D postava. Detail: {ex.Message}");
+            return (false, null, $"Naskenovaný kód nie je platný D&D item. Detail: {ex.Message}");
         }
         catch (Exception ex)
         {
             return (false, null, $"Vyskytla sa neznáma chyba pri čítaní QR kódu: {ex.Message}");
         }
+    }
+    
+    private string Compress(string text)
+    {
+        byte[] bytes = Encoding.UTF8.GetBytes(text);
+        
+        using var memoryStreamInput = new MemoryStream(bytes);
+        using var memoryStreamOutput = new MemoryStream();
+        
+        using (var gZipStream = new GZipStream(memoryStreamOutput, CompressionLevel.Optimal))
+        {
+            memoryStreamInput.CopyTo(gZipStream);
+        }
+        
+        return Convert.ToBase64String(memoryStreamOutput.ToArray());
+    }
+
+    private string Decompress(string compressedBase64)
+    {
+        byte[] bytes = Convert.FromBase64String(compressedBase64);
+        
+        using var memoryStreamInput = new MemoryStream(bytes);
+        using var memoryStreamOutput = new MemoryStream();
+        
+        using (var gZipStream = new GZipStream(memoryStreamInput, CompressionMode.Decompress))
+        {
+            gZipStream.CopyTo(memoryStreamOutput);
+        }
+        
+        return Encoding.UTF8.GetString(memoryStreamOutput.ToArray());
     }
 }
