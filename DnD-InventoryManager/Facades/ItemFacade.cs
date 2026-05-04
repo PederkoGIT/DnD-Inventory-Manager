@@ -3,6 +3,7 @@ using DnD_InventoryManager.Entities;
 using DnD_InventoryManager.Mappers;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
+using Refit;
 
 namespace DnD_InventoryManager.Facades;
 
@@ -12,6 +13,8 @@ public class ItemFacade(
     EquipmentClient equipmentClient
     )
 {
+    private readonly IAllItemsApiClient _dndApi = RestService.For<IAllItemsApiClient>("https://www.dnd5eapi.co");
+    
     public async Task<ICollection<ItemModel>> GetAllByCharacterIdAsync(int id)
     {
         var entities = await databaseService.GetAllByCharacterId(id);
@@ -45,5 +48,17 @@ public class ItemFacade(
     {
         var resp = await equipmentClient.MagicItemsAsync(index.Replace(" ", "-").ToLower());
         return ItemMapper.MagicItemModelToItemModel(resp);
+    }
+
+    public async Task<List<ItemListApiModel>> GetAllEquipmentApiAsync()
+    {
+        var resp = await _dndApi.GetAllEquipmentAsync();
+        return resp.Results;
+    }
+
+    public async Task<List<ItemListApiModel>> GetAllMagicItemsAsync()
+    {
+        var resp = await _dndApi.GetAllMagicItems();
+        return resp.Results;
     }
 }

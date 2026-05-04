@@ -15,19 +15,47 @@ public partial class ItemFromApiVIewModel(
         Enum.GetValues<ItemCategoriesEnum>().ToList();
 
     private int _characterId;
+    private List<ItemListApiModel> _allEquipmentApiList = []; 
+    private List<ItemListApiModel> _allMagicItemsApiList = []; 
+    
+    [ObservableProperty]
+    public partial ICollection<ItemListApiModel> EquipmentApiList { get; set; } = [];
+    
+    [ObservableProperty] 
+    public partial string SearchedItem { get; set; } = string.Empty;
     
     [ObservableProperty] 
     public partial ItemModel Item { get; set; } = new();
 
     [ObservableProperty] 
-    public partial string Index { get; set; } = string.Empty;
+    public partial ItemListApiModel SelectedItem { get; set; } = new();
     
     [ObservableProperty]
     public partial ItemCategoriesEnum ItemCategory { get; set; }
 
-    public void LoadPage()
+    public async Task LoadPage()
     {
         _characterId = Item.CharacterId;
+        _allEquipmentApiList = await itemFacade.GetAllEquipmentApiAsync();
+        _allMagicItemsApiList = await itemFacade.GetAllMagicItemsAsync();
+        EquipmentApiList = _allEquipmentApiList.ToList();
+    }
+    
+    public void OnSearchedItemChanged()
+    {
+
+        EquipmentApiList = ItemCategory switch
+        {
+            ItemCategoriesEnum.Equipment => _allEquipmentApiList.ToList(),
+            ItemCategoriesEnum.MagicItem => _allMagicItemsApiList.ToList(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        if (!SearchedItem.Equals(string.Empty))
+        {
+            EquipmentApiList = EquipmentApiList.Where(i => i.Name.Contains(SearchedItem, StringComparison.CurrentCultureIgnoreCase)).ToList();
+        }
+    
     }
     
     [RelayCommand]
@@ -37,8 +65,8 @@ public partial class ItemFromApiVIewModel(
         {
             Item = ItemCategory switch
             {
-                ItemCategoriesEnum.Equipment => await itemFacade.GetFromEquipmentApi(Index),
-                ItemCategoriesEnum.MagicItem => await itemFacade.GetFromMagicItemApi(Index),
+                ItemCategoriesEnum.Equipment => await itemFacade.GetFromEquipmentApi(SelectedItem.Index),
+                ItemCategoriesEnum.MagicItem => await itemFacade.GetFromMagicItemApi(SelectedItem.Index),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -49,11 +77,7 @@ public partial class ItemFromApiVIewModel(
         }
         
         Item.CharacterId = _characterId;
-    }
-
-    [RelayCommand]
-    private async Task UseThisItem()
-    {
+        
         await Shell.Current.GoToAsync("..", new Dictionary<string, object>()
         {
             {"Item", Item}

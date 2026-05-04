@@ -10,12 +10,28 @@ public partial class ItemFromApiPage : ContentPage
         BindingContext = vIewModel;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
         if (BindingContext is ItemFromApiVIewModel viewModel)
         {
-            viewModel.LoadPage();
+            await viewModel.LoadPage();
+        }
+    }
+
+    private void OnSearchedItemChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (BindingContext is ItemFromApiVIewModel viewModel)
+        {
+            viewModel.OnSearchedItemChanged();
+        }
+    }
+
+    private void Picker_OnSelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (BindingContext is ItemFromApiVIewModel viewModel)
+        {
+            viewModel.OnSearchedItemChanged();
         }
     }
 }
