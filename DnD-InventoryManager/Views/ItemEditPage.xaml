@@ -5,38 +5,64 @@
              xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
              x:Class="DnD_InventoryManager.Views.ItemEditPage"
              x:DataType="vm:ItemEditViewModel"
-             BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray900}}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
              Title="{Binding Title}">
+    
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Template" Command="{Binding GetItemFromApiCommand}"/>
+    </ContentPage.ToolbarItems>
+    
     <ContentPage.Content>
-        <VerticalStackLayout Padding="25" Spacing="20">
-            <Border HorizontalOptions="Center" HeightRequest="160" WidthRequest="160"
-                    Stroke="{StaticResource Primary}" StrokeThickness="2">
-                <Border.StrokeShape><RoundRectangle CornerRadius="80" /></Border.StrokeShape>
-                <Image Source="{Binding ItemModel.ImagePath}" Aspect="AspectFill" />
-            </Border>
-        
-            <Button Text="Select Image" Command="{Binding PickImageCommand}" 
-                    BackgroundColor="{StaticResource Secondary}" 
-                    TextColor="{StaticResource SecondaryDarkText}" />
+        <Grid RowDefinitions="auto, auto, *, auto" Padding="25" RowSpacing="20">
+            <VerticalStackLayout Grid.Row="0" Spacing="20">
+                <Border HorizontalOptions="Center" HeightRequest="160" WidthRequest="160"
+                        Stroke="{StaticResource Primary}" StrokeThickness="2">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="80" /></Border.StrokeShape>
+                    <Image Source="{Binding ItemModel.ImagePath}" Aspect="AspectFill" />
+                </Border>
+            
+                <Button Text="Select Image" Command="{Binding PickImageCommand}" 
+                        BackgroundColor="{StaticResource Secondary}" 
+                        TextColor="{StaticResource SecondaryDarkText}" />
 
-            <VerticalStackLayout Spacing="5">
-                <Label Text="Item name" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                <Entry Placeholder="Name..." Text="{Binding ItemModel.Name}" />
-            </VerticalStackLayout>
-
-            <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="10">
-                <VerticalStackLayout Grid.Column="0" Spacing="5">
-                    <Label Text="Weight in pounds" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                    <Entry Text="{Binding ItemModel.Weight}" Keyboard="Numeric" MaxLength="2" HorizontalTextAlignment="Center"/>
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Item name" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                    <Entry Placeholder="Name..." Text="{Binding ItemModel.Name}" />
                 </VerticalStackLayout>
-            </Grid>
-
-            <VerticalStackLayout Spacing="5">
-                <Label Text="Description" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                <Entry Placeholder="Description..." Text="{Binding ItemModel.Description}" />
+                
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Weight in pounds" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                    <Entry Text="{Binding ItemModel.Weight}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+                
+                <Grid ColumnDefinitions="*, auto" ColumnSpacing="15">
+                    <VerticalStackLayout Grid.Column="0" Spacing="5">
+                        <Label Text="Amount" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                        <Entry Text="{Binding NewQuantity}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
+                    </VerticalStackLayout>
+                    <Stepper Grid.Column="1" Value="{Binding NewQuantity}" Minimum="0" Maximum="999" VerticalOptions="End"/>
+                </Grid>
+                    
+                    
             </VerticalStackLayout>
 
-            <Button Text="Save Item" Command="{Binding SaveCommand}" Margin="0,20,0,0" />
-        </VerticalStackLayout>
+            <Label Grid.Row="1"
+                   Text="Description" 
+                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+            
+            <Editor Grid.Row="2" 
+                    Placeholder="Description..." 
+                    Text="{Binding ItemModel.Description}" 
+                    VerticalOptions="Fill"/>
+            
+            <!-- <VerticalStackLayout Grid.Row="1" Spacing="5" VerticalOptions="Fill"> -->
+            <!-- </VerticalStackLayout> -->
+
+            <Button Grid.Row="3"
+                    Text="Save Item" 
+                    Command="{Binding SaveCommand}" 
+                    Margin="0,20,0,0" />
+        </Grid>
+            
     </ContentPage.Content>
 </ContentPage>

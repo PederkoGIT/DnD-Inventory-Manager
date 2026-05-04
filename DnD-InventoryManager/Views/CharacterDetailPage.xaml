@@ -61,12 +61,19 @@
                 <VerticalStackLayout Spacing="8">
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Grid.Column="0" Text="INVENTORY LOAD" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Gray500}" CharacterSpacing="1" />
-                        <Label Grid.Column="1" Text="{Binding Character.CarryingCapacity, StringFormat='0 / {0} lb'}" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        <Label Grid.Column="1" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" >
+                            <Label.Text>
+                                <MultiBinding StringFormat="{}{0} / {1} lb">
+                                    <Binding Path="CurrentLoad" />
+                                    <Binding Path="Character.CarryingCapacity" />
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
                     </Grid>
                     
                     <Border StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}" HeightRequest="8">
                         <Border.StrokeShape><RoundRectangle CornerRadius="4"/></Border.StrokeShape>
-                        <ProgressBar Progress="0.0" ProgressColor="{StaticResource Primary}" />
+                        <ProgressBar Progress="{Binding CurrentLoadPercentage}" ProgressColor="{StaticResource Primary}" />
                     </Border>
                 </VerticalStackLayout>
             </VerticalStackLayout>

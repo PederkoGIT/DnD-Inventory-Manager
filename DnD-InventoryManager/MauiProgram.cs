@@ -1,4 +1,5 @@
-﻿using DnD_InventoryManager.Facades;
+﻿using DnD_InventoryManager.Api;
+using DnD_InventoryManager.Facades;
 using DnD_InventoryManager.Mappers;
 using DnD_InventoryManager.Services;
 using DnD_InventoryManager.ViewModels;
@@ -38,6 +39,9 @@ public static class MauiProgram
 		
 		builder.Services.AddTransient<ItemEditPage>();
 		builder.Services.AddTransient<ItemEditViewModel>();
+		
+		builder.Services.AddTransient<ItemFromApiPage>();
+		builder.Services.AddTransient<ItemFromApiVIewModel>();
 
 		builder.Services.AddTransient<DiceRollerPage>();
 		builder.Services.AddTransient<DiceRollerViewModel>();
@@ -52,7 +56,8 @@ public static class MauiProgram
 		
 		builder.Services.AddSingleton<NfcService>();
 
-		builder.Services.AddSingleton<ApiService>();
+		builder.Services.AddSingleton<EquipmentClient>();
+		builder.Services.AddSingleton<HttpClient>();
 		
 		return builder.Build();
 	}
