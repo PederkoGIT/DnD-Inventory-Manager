@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:DnD_InventoryManager.Models" 
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             x:Class="DnD_InventoryManager.Views.ItemFromApiPage"
+             x:DataType="vm:ItemFromApiVIewModel"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+             Title="Get Base DnD Item">
+    
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto, *, Auto" Padding="25">
+            <VerticalStackLayout Grid.Row="0" Padding="10" Spacing="10">
+                <Picker Title="Select category..."
+                        ItemsSource="{x:Static vm:ItemFromApiVIewModel.AllCategories}" 
+                        SelectedItem="{Binding ItemCategory}" 
+                        SelectedIndexChanged="Picker_OnSelectedIndexChanged"
+                        FontSize="16" />
+                <Entry Placeholder="name of a item"
+                       Text="{Binding SearchedItem}"
+                       TextChanged="OnSearchedItemChanged"/>
+            </VerticalStackLayout>
+            
+            <CollectionView Grid.Row="1"
+                            ItemsSource="{Binding EquipmentApiList}"
+                            SelectionMode="Single"
+                            SelectedItem="{Binding SelectedItem}"
+                            EmptyView="No Items match you filter. Try different one">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ItemListApiModel">
+                        <Border Margin="15,8" 
+                                Padding="15" 
+                                Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource PrimaryDark}}" 
+                                StrokeThickness="1"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="15" />
+                            </Border.StrokeShape>
+                        
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.1" />
+                            </Border.Shadow>
+                            
+                            <Label Text="{Binding Name}" 
+                                   FontAttributes="Bold" FontSize="18" 
+                                   TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+                            
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            
+            <Button Grid.Row="2"
+                Text="Use Template" 
+                Command="{Binding GetItemFromApiCommand}" 
+                Margin="0,20,0,0" />
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

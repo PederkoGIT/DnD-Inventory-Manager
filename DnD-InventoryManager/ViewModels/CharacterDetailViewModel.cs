@@ -21,7 +21,13 @@ public partial class CharacterDetailViewModel(
     [ObservableProperty]
     public partial bool IsWaitingForNfc { get; set; }
 
-    public ObservableCollection<ItemModel> Items { get; } = [];
+    [ObservableProperty]
+    public partial ICollection<ItemModel> Items { get; set; } = [];
+    
+    [ObservableProperty]
+    public partial double CurrentLoad { get; set; }
+    [ObservableProperty]
+    public partial double CurrentLoadPercentage { get; set; }
     
     public async Task RefreshCharacterAsync()
     {
@@ -37,11 +43,10 @@ public partial class CharacterDetailViewModel(
         {
             Character = updatedCharacter;
             var items = await itemFacade.GetAllByCharacterIdAsync(updatedCharacter.Id);
-            foreach (var item in items)
-            {
-                Items.Add(item);
-            }
+            Items = items;
             Title = Character.Name;
+            CurrentLoad = Items.Sum(i => i.TotalWeight);
+            CurrentLoadPercentage = CurrentLoad / Character.CarryingCapacity;
         }
     }
 
@@ -80,8 +85,8 @@ public partial class CharacterDetailViewModel(
         
         if (answer)
         {
+            await itemFacade.DeleteAllByCharacterId(Character.Id);
             await characterFacade.DeleteAsync(Character.Id);
-            
             await Shell.Current.GoToAsync("..");
         }
     }

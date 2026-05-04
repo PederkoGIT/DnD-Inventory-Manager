@@ -62,4 +62,11 @@ public class DatabaseService
         await connection.CloseAsync();
         return entities;
     }
+
+    public async Task DeleteAllByCharacterId(int characterId)
+    {
+        var connection = new SQLiteAsyncConnection(_dbPath);
+        await connection.ExecuteAsync($"delete from Items where CharacterId={characterId}");
+        await connection.CloseAsync();
+    }
 }
