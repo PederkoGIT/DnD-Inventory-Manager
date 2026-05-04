@@ -13,7 +13,7 @@ public class ItemFacade(
     EquipmentClient equipmentClient
     )
 {
-    private readonly IAllItemsApiClient _dndApi = RestService.For<IAllItemsApiClient>("https://www.dnd5eapi.co");
+    private readonly IAllItemsApiClient _dndApi = RestService.For<IAllItemsApiClient>(IAllItemsApiClient.BaseUrl);
     
     public async Task<ICollection<ItemModel>> GetAllByCharacterIdAsync(int id)
     {

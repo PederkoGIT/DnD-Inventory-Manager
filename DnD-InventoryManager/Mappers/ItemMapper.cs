@@ -33,7 +33,7 @@ public partial class ItemMapper
         {
             Name = magicItem.Name,
             Description = string.Join(", ", magicItem.Desc),
-            ImagePath = "https://www.dnd5eapi.co" + magicItem.Image
+            ImagePath = IAllItemsApiClient.BaseUrl + magicItem.Image
         };
     }
 }

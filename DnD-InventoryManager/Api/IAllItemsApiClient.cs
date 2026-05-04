@@ -7,6 +7,8 @@ namespace DnD_InventoryManager.Api;
 
 public interface IAllItemsApiClient
 {
+    public const string BaseUrl = "https://www.dnd5eapi.co";
+    
     [Get("/api/2014/equipment")]
     Task<AllItemsResponse> GetAllEquipmentAsync();
 
