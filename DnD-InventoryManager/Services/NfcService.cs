@@ -6,20 +6,22 @@ using Plugin.NFC;
 
 namespace DnD_InventoryManager.Services;
 
-public class NfcCharacterModelDto
+
+public class NfcItemModelDto
 {
     [JsonPropertyName("n")] public string Name { get; init; } = string.Empty;
-    [JsonPropertyName("s")] public int Strength { get; init; }
-    [JsonPropertyName("z")] public CharacterSizeEnum Size { get; init; }
+    [JsonPropertyName("d")] public string Description { get; init; } = string.Empty;
+    [JsonPropertyName("w")] public double Weight { get; init; }
+    [JsonPropertyName("q")] public int Quantity { get; init; }
 }
 
 public class NfcService
 {
-    private Action<CharacterModel>? _onCharacterModelReceived;
+    private Action<ItemModel>? _onItemModelReceived;
     private Action<string>? _onError;
     private Action? _onSuccess;
     
-    private CharacterModel? _CharacterModelToWrite;
+    private ItemModel? _itemModelToWrite;
     private bool _isWriting;
 
     public NfcService()
@@ -28,12 +30,12 @@ public class NfcService
         CrossNFC.Current.OnTagDiscovered += Current_OnTagDiscovered;
     }
 
-    public void StartListening(Action<CharacterModel> onCharacterModelReceived, Action<string> onError)
+    public void StartListening(Action<ItemModel> onItemModelReceived, Action<string> onError)
     {
         if (!CrossNFC.Current.IsAvailable) { onError("NFC is not available on this device"); return; }
         
         _isWriting = false;
-        _onCharacterModelReceived = onCharacterModelReceived;
+        _onItemModelReceived = onItemModelReceived;
         _onError = onError;
         
         CrossNFC.Current.StartListening();
@@ -42,15 +44,15 @@ public class NfcService
     public void StopListening()
     {
         CrossNFC.Current.StopListening();
-        _onCharacterModelReceived = null;
+        _onItemModelReceived = null;
     }
 
-    public void StartWriting(CharacterModel CharacterModel, Action onSuccess, Action<string> onError)
+    public void StartWriting(ItemModel itemModel, Action onSuccess, Action<string> onError)
     {
         if (!CrossNFC.Current.IsAvailable) { onError("NFC is not available on this device"); return; }
         
         _isWriting = true;
-        _CharacterModelToWrite = CharacterModel;
+        _itemModelToWrite = itemModel;
         _onSuccess = onSuccess;
         _onError = onError;
         
@@ -76,19 +78,20 @@ public class NfcService
             
             var json = BrotliHelper.DecompressFromBrotli(record.Payload);
                 
-            var dto = JsonSerializer.Deserialize<NfcCharacterModelDto>(json);
+            var dto = JsonSerializer.Deserialize<NfcItemModelDto>(json);
 
             if (dto == null) return;
             
-            var character = new CharacterModel
+            var item = new ItemModel
             {
                 Name = dto.Name,
-                Strength = dto.Strength,
-                Size = dto.Size,
-                ImagePath = "dotnet_bot.png" 
+                Description = dto.Description,
+                Weight = dto.Weight,
+                Quantity = dto.Quantity,
+                ImagePath = "dotnet_bot.png"
             };
             
-            _onCharacterModelReceived?.Invoke(character);
+            _onItemModelReceived?.Invoke(item);
         }
         catch (Exception ex)
         {
@@ -98,15 +101,16 @@ public class NfcService
 
     private void Current_OnTagDiscovered(ITagInfo tagInfo, bool format)
     {
-        if (!_isWriting || _CharacterModelToWrite == null) return;
+        if (!_isWriting || _itemModelToWrite == null) return;
 
         try
         {
-            var dto = new NfcCharacterModelDto
+            var dto = new NfcItemModelDto
             {
-                Name = _CharacterModelToWrite.Name,
-                Strength = _CharacterModelToWrite.Strength,
-                Size = _CharacterModelToWrite.Size
+                Name = _itemModelToWrite.Name,
+                Description = _itemModelToWrite.Description,
+                Weight = _itemModelToWrite.Weight,
+                Quantity = _itemModelToWrite.Quantity
             };
             var json = JsonSerializer.Serialize(dto);
             
