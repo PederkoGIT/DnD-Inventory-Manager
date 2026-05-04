@@ -32,7 +32,8 @@ public partial class ItemMapper
         return new ItemModel
         {
             Name = magicItem.Name,
-            Description = string.Join(", ", magicItem.Desc)
+            Description = string.Join(", ", magicItem.Desc),
+            ImagePath = "https://www.dnd5eapi.co" + magicItem.Image
         };
     }
 }
