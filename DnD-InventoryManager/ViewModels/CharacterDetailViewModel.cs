@@ -102,5 +102,17 @@ public partial class CharacterDetailViewModel : ViewModelBase
         await Shell.Current.DisplayAlertAsync("Write to NFC", "Attach your phone to NFC tag", "OK");
     }
     
+    [RelayCommand]
+    private async Task ShowQrCodeAsync()
+    {
+        if (Character == null) return;
+
+        await Shell.Current.GoToAsync(nameof(QrCodeDisplayPage), new Dictionary<string, object>
+        {
+            { "Character", Character }
+        });
+    }
+
+    
     
 }
