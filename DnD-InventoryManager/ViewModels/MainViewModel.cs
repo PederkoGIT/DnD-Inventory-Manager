@@ -98,6 +98,15 @@ public partial class MainViewModel : ViewModelBase
     }
     
     [RelayCommand]
+    public async Task ScanQrAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(QrScanPage));
+        
+        await LoadCharactersAsync();
+    }
+
+    
+    [RelayCommand]
     private async Task ShowDiceRollerAsync()
     {
         await Shell.Current.GoToAsync(nameof(DiceRollerPage));
