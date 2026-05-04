@@ -87,11 +87,11 @@
                     Padding="40"
                     VerticalOptions="FillAndExpand">
                 <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
-                <!-- <Label Text="Inventory is empty. Tap '+' to add items."  -->
-                <!--        HorizontalOptions="Center"  -->
-                <!--        TextColor="{StaticResource Gray500}" /> -->
+                
                 <CollectionView ItemsSource="{Binding Items}"
-                                SelectionMode="None">
+                                SelectionMode="None"
+                                EmptyView="Inventory is empty. Tap '+' to add items.">
+                    
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:ItemModel">
                             <Border Margin="15,8" 

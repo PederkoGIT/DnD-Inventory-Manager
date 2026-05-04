@@ -25,7 +25,8 @@
             <CollectionView Grid.Row="1"
                             ItemsSource="{Binding EquipmentApiList}"
                             SelectionMode="Single"
-                            SelectedItem="{Binding SelectedItem}">
+                            SelectedItem="{Binding SelectedItem}"
+                            EmptyView="No Items match you filter. Try different one">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:ItemListApiModel">
                         <Border Margin="15,8" 

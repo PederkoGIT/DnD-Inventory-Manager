@@ -10,7 +10,8 @@
 
     <Grid>
         <CollectionView ItemsSource="{Binding Characters}" 
-                        SelectionMode="None">
+                        SelectionMode="None"
+                        EmptyView="You have no characters. Tap '+' to add characters.">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:CharacterModel">
                     <Border Margin="15,8" 
