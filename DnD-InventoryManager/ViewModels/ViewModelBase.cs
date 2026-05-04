@@ -5,8 +5,8 @@ namespace DnD_InventoryManager.ViewModels;
 public abstract partial class ViewModelBase : ObservableObject
 {
     [ObservableProperty]
-    string? title;
+    public partial string? Title { get; set; }
 
-    [ObservableProperty] 
-    bool isBusy;
+    [ObservableProperty]
+    public partial bool IsBusy { get; set; }
 }

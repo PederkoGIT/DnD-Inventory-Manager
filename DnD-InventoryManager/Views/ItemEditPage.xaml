@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             x:Class="DnD_InventoryManager.Views.ItemEditPage"
+             x:DataType="vm:ItemEditViewModel"
+             BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray900}}"
+             Title="{Binding Title}">
+    <ContentPage.Content>
+        <VerticalStackLayout Padding="25" Spacing="20">
+            <Border HorizontalOptions="Center" HeightRequest="160" WidthRequest="160"
+                    Stroke="{StaticResource Primary}" StrokeThickness="2">
+                <Border.StrokeShape><RoundRectangle CornerRadius="80" /></Border.StrokeShape>
+                <Image Source="{Binding ItemModel.ImagePath}" Aspect="AspectFill" />
+            </Border>
+        
+            <Button Text="Select Image" Command="{Binding PickImageCommand}" 
+                    BackgroundColor="{StaticResource Secondary}" 
+                    TextColor="{StaticResource SecondaryDarkText}" />
+
+            <VerticalStackLayout Spacing="5">
+                <Label Text="Item name" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                <Entry Placeholder="Name..." Text="{Binding ItemModel.Name}" />
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="10">
+                <VerticalStackLayout Grid.Column="0" Spacing="5">
+                    <Label Text="Weight in pounds" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                    <Entry Text="{Binding ItemModel.Weight}" Keyboard="Numeric" MaxLength="2" HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <VerticalStackLayout Spacing="5">
+                <Label Text="Description" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                <Entry Placeholder="Description..." Text="{Binding ItemModel.Description}" />
+            </VerticalStackLayout>
+
+            <Button Text="Save Item" Command="{Binding SaveCommand}" Margin="0,20,0,0" />
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>
