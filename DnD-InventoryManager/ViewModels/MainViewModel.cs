@@ -126,15 +126,6 @@ public partial class MainViewModel : ViewModelBase
         _nfcService.StopListening();
     }
     
-    [RelayCommand]
-    public async Task ScanQrAsync()
-    {
-        await Shell.Current.GoToAsync(nameof(QrScanPage));
-        
-        await LoadCharactersAsync();
-    }
-
-    
     private static async Task ShowDiceRollerAsync()
     {
         await Shell.Current.GoToAsync(nameof(DiceRollerPage));

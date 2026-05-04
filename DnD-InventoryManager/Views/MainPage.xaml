@@ -85,21 +85,7 @@
                         TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
                         HeightRequest="50" WidthRequest="50" CornerRadius="25"
                         Command="{Binding ShowDiceRollerCommand}" />
-
-            
-                <Button Text="QR"
-                        FontSize="16"
-                        FontAttributes="Bold"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
-                        TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}"
-                        HeightRequest="60"
-                        WidthRequest="60"
-                        CornerRadius="30"
-                        Command="{Binding ScanQrCommand}">
-                    <Button.Shadow>
-                        <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.3" />
-                    </Button.Shadow>
-                </Button>
+                
                 <Button Text="NFC"
                         FontSize="14" FontAttributes="Bold"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}"
