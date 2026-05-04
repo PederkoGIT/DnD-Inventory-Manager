@@ -12,7 +12,8 @@ public partial class ItemEditViewModel(
     ) : ViewModelBase
 {
     [ObservableProperty] public partial ItemModel ItemModel { get; set; } = new() ;
-    [ObservableProperty] public partial int NewQuantity { get; set; }
+    [ObservableProperty] public partial double NewWeight { get; set; }
+    [ObservableProperty] public partial int NewQuantity { get; set; } = 1;
 
     public async Task LoadDataAsync()
     {
@@ -22,12 +23,31 @@ public partial class ItemEditViewModel(
         {
             Title = "Edit Item";
             ItemModel = itemFromDb;
+            NewWeight = itemFromDb.Weight;
             NewQuantity = itemFromDb.Quantity;
         }
     }
-
-
     
+    partial void OnNewWeightChanged(double value)
+    {
+        NewWeight = value switch
+        {
+            < 0 => 0,
+            > 999 => 999,
+            _ => NewWeight
+        };
+    }
+
+    partial void OnNewQuantityChanged(int value)
+    {
+        NewQuantity = value switch
+        {
+            < 0 => 0,
+            > 999 => 999,
+            _ => NewQuantity
+        };
+    }
+
     [RelayCommand]
     private async Task PickImageAsync()
     {
@@ -56,6 +76,7 @@ public partial class ItemEditViewModel(
     [RelayCommand]
     private async Task SaveAsync()
     {
+        ItemModel.Weight = NewWeight;
         ItemModel.Quantity = NewQuantity;
         await itemFacade.SaveAsync(ItemModel);
         await Shell.Current.GoToAsync("..");

@@ -32,7 +32,7 @@
                 
                 <VerticalStackLayout Spacing="5">
                     <Label Text="Weight in pounds" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                    <Entry Text="{Binding ItemModel.Weight}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
+                    <Entry Text="{Binding NewWeight}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
                 </VerticalStackLayout>
                 
                 <Grid ColumnDefinitions="*, auto" ColumnSpacing="15">
