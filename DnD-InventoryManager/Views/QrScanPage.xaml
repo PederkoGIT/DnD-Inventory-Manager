@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+             x:Class="DnD_InventoryManager.Views.QrScanPage"
+             x:DataType="vm:QrScanViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="Black">
+
+    <Grid>
+        <zxing:CameraBarcodeReaderView x:Name="CameraView"
+                                       BarcodesDetected="CameraView_BarcodesDetected"
+                                       IsDetecting="{Binding IsDetecting}"
+                                       HorizontalOptions="Fill"
+                                       VerticalOptions="Fill" />
+
+        <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
+            <Border WidthRequest="260"
+                    HeightRequest="260"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    Background="Transparent"
+                    Stroke="White"
+                    StrokeThickness="2">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16" />
+                </Border.StrokeShape>
+            </Border>
+
+            <Border HorizontalOptions="Center"
+                    VerticalOptions="End"
+                    Margin="24,0,24,60"
+                    Padding="16,10"
+                    BackgroundColor="#CC000000">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="24" />
+                </Border.StrokeShape>
+                <Label Text="{Binding StatusMessage}"
+                       TextColor="White"
+                       FontSize="14"
+                       HorizontalTextAlignment="Center" />
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>
