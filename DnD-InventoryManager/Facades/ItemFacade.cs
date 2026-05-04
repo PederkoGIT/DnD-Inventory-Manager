@@ -44,6 +44,11 @@ public class ItemFacade(
         return ItemMapper.EquipmentModelToItemModel(resp);
     }
 
+    public async Task DeleteAllByCharacterId(int characterId)
+    {
+        await databaseService.DeleteAllByCharacterId(characterId);
+    }
+    
     public async Task<ItemModel> GetFromMagicItemApi(string index)
     {
         var resp = await equipmentClient.MagicItemsAsync(index.Replace(" ", "-").ToLower());

@@ -85,8 +85,8 @@ public partial class CharacterDetailViewModel(
         
         if (answer)
         {
+            await itemFacade.DeleteAllByCharacterId(Character.Id);
             await characterFacade.DeleteAsync(Character.Id);
-            
             await Shell.Current.GoToAsync("..");
         }
     }
