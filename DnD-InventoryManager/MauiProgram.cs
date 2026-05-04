@@ -5,6 +5,8 @@ using DnD_InventoryManager.Services;
 using DnD_InventoryManager.ViewModels;
 using DnD_InventoryManager.Views;
 using Microsoft.Extensions.Logging;
+using ZXing.Net.Maui;
+using ZXing.Net.Maui.Controls;
 
 namespace DnD_InventoryManager;
 
@@ -15,6 +17,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
+			.UseBarcodeReader()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -58,6 +61,15 @@ public static class MauiProgram
 
 		builder.Services.AddSingleton<EquipmentClient>();
 		builder.Services.AddSingleton<HttpClient>();
+		
+		builder.Services.AddSingleton<QrService>();
+		
+		builder.Services.AddTransient<QrCodeDisplayPage>();
+		builder.Services.AddTransient<QrCodeDisplayViewModel>();
+		builder.Services.AddTransient<QrScanPage>();
+		builder.Services.AddTransient<QrScanViewModel>();
+
+
 		
 		return builder.Build();
 	}

@@ -167,4 +167,18 @@ public partial class CharacterDetailViewModel(
             { "Item", item }
         });
     }
+    
+    [RelayCommand]
+    private async Task ScanItemQrAsync()
+    {
+        if (Character == null) return;
+
+        await Shell.Current.GoToAsync(nameof(QrScanPage), new Dictionary<string, object>
+        {
+            { "CharacterId", Character.Id }
+        });
+    }
+
+    
+    
 }

@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+             x:Class="DnD_InventoryManager.Views.QrCodeDisplayPage"
+             x:DataType="vm:QrCodeDisplayViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
+
+    <ScrollView>
+    <VerticalStackLayout Padding="24" Spacing="24" VerticalOptions="Center">
+
+        <Label Text="{Binding Item.Name}"
+               FontSize="28" FontAttributes="Bold"
+               HorizontalOptions="Center"
+               TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+
+        <Label Text="Scan this code with another device to import the item."
+               FontSize="14" HorizontalOptions="Center"
+               HorizontalTextAlignment="Center"
+               TextColor="{StaticResource Gray500}" />
+
+        <Border Padding="16" HorizontalOptions="Center"
+                BackgroundColor="White"
+                Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16" />
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,4" Radius="12" Opacity="0.15" />
+            </Border.Shadow>
+            <zxing:BarcodeGeneratorView
+                Format="QrCode"
+                Value="{Binding QrPayload}"
+                ForegroundColor="Black"
+                BackgroundColor="White"
+                WidthRequest="240"
+                HeightRequest="240" />
+        </Border>
+
+        <Border Padding="16"
+                Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*, Auto, *" RowDefinitions="Auto">
+                <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
+                    <Label Text="WEIGHT" FontSize="11" TextColor="{StaticResource Gray500}" HorizontalOptions="Center" />
+                    <Label Text="{Binding Item.Weight, StringFormat='{0} lb'}" FontSize="22" FontAttributes="Bold"
+                           TextColor="{StaticResource Primary}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+                <BoxView Grid.Column="1" WidthRequest="1" BackgroundColor="{StaticResource Gray200}" Margin="8,0" />
+                <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                    <Label Text="QTY" FontSize="11" TextColor="{StaticResource Gray500}" HorizontalOptions="Center" />
+                    <Label Text="{Binding Item.Quantity}" FontSize="22" FontAttributes="Bold"
+                           TextColor="{StaticResource Primary}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+    </VerticalStackLayout>
+</ScrollView>
+</ContentPage>

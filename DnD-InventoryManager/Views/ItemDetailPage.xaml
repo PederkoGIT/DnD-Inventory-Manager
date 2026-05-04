@@ -77,6 +77,17 @@
                         <Shadow Brush="{StaticResource Primary}" Offset="0,4" Radius="8" Opacity="0.4" />
                     </Button.Shadow>
                 </Button>
+                <Button Text="Show QR Code"
+                        FontSize="14" FontAttributes="Bold"
+                        BackgroundColor="{StaticResource Secondary}"
+                        TextColor="{StaticResource White}"
+                        HeightRequest="50" CornerRadius="25"
+                        Padding="25,0"
+                        Command="{Binding ShowQrCodeCommand}">
+                    <Button.Shadow>
+                        <Shadow Brush="{StaticResource Secondary}" Offset="0,4" Radius="8" Opacity="0.4" />
+                    </Button.Shadow>
+                </Button>
             </HorizontalStackLayout>
         </Border>
 

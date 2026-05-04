@@ -126,7 +126,6 @@ public partial class MainViewModel : ViewModelBase
         _nfcService.StopListening();
     }
     
-    [RelayCommand]
     private static async Task ShowDiceRollerAsync()
     {
         await Shell.Current.GoToAsync(nameof(DiceRollerPage));

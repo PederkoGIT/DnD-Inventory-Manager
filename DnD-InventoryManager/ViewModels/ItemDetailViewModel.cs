@@ -112,4 +112,16 @@ public partial class ItemDetailViewModel(
         IsWaitingForNfc = false;
         nfcService.StopWriting();
     }
+    
+    [RelayCommand]
+    private async Task ShowQrCodeAsync()
+    {
+        if (Item == null) return;
+
+        await Shell.Current.GoToAsync(nameof(QrCodeDisplayPage), new Dictionary<string, object>
+        {
+            { "Item", Item }
+        });
+    }
+    
 }
