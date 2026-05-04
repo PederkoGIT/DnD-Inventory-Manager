@@ -164,13 +164,13 @@ public partial class CharacterDetailViewModel(
     }
     
     [RelayCommand]
-    private async Task ShowQrCodeAsync()
+    private async Task ScanItemQrAsync()
     {
         if (Character == null) return;
 
-        await Shell.Current.GoToAsync(nameof(QrCodeDisplayPage), new Dictionary<string, object>
+        await Shell.Current.GoToAsync(nameof(QrScanPage), new Dictionary<string, object>
         {
-            { "Character", Character }
+            { "CharacterId", Character.Id }
         });
     }
 

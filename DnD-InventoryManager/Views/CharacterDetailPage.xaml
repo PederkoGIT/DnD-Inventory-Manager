@@ -80,9 +80,6 @@
                     Padding="40"
                     VerticalOptions="FillAndExpand">
                 <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
-                <!-- <Label Text="Inventory is empty. Tap '+' to add items."  -->
-                <!--        HorizontalOptions="Center"  -->
-                <!--        TextColor="{StaticResource Gray500}" /> -->
                 <CollectionView ItemsSource="{Binding Items}"
                                 SelectionMode="None">
                     <CollectionView.ItemTemplate>
@@ -163,6 +160,7 @@
                         TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
                         HeightRequest="50" WidthRequest="50" CornerRadius="25"
                         Command="{Binding ListenForNfcCommand}" />
+                    Command="{Binding ScanItemQrCommand}">
 
                 <Button Text="+"
                         FontSize="24" FontAttributes="Bold"
