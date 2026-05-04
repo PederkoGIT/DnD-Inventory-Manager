@@ -41,6 +41,15 @@ public static class MauiProgram
 		
 		builder.Services.AddSingleton<NfcService>();
 		
+		builder.Services.AddSingleton<QrService>();
+		
+		builder.Services.AddTransient<QrCodeDisplayPage>();
+		builder.Services.AddTransient<QrCodeDisplayViewModel>();
+		builder.Services.AddTransient<QrScanPage>();
+		builder.Services.AddTransient<QrScanViewModel>();
+
+
+		
 		return builder.Build();
 	}
 }
