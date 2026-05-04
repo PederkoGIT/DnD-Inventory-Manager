@@ -12,6 +12,7 @@ public partial class ItemEditViewModel(
     ) : ViewModelBase
 {
     [ObservableProperty] public partial ItemModel ItemModel { get; set; } = new() ;
+    [ObservableProperty] public partial int NewQuantity { get; set; }
 
     public async Task LoadDataAsync()
     {
@@ -21,12 +22,41 @@ public partial class ItemEditViewModel(
         {
             Title = "Edit Item";
             ItemModel = itemFromDb;
+            NewQuantity = itemFromDb.Quantity;
         }
     }
 
+
+    
+    [RelayCommand]
+    private async Task PickImageAsync()
+    {
+        try
+        {
+            var mediaOptions = new MediaPickerOptions
+            {
+                SelectionLimit = 1
+            };
+            
+            var photos = await MediaPicker.Default.PickPhotosAsync(mediaOptions);
+            
+            var photo = photos.FirstOrDefault();
+            
+            if (photo != null)
+            {
+                ItemModel.ImagePath = photo.FullPath;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error from image picker: {ex.Message}");
+        }
+    }
+    
     [RelayCommand]
     private async Task SaveAsync()
     {
+        ItemModel.Quantity = NewQuantity;
         await itemFacade.SaveAsync(ItemModel);
         await Shell.Current.GoToAsync("..");
     }
