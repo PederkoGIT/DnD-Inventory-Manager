@@ -4,29 +4,29 @@ using DnD_InventoryManager.Services;
 
 namespace DnD_InventoryManager.ViewModels;
 
-[QueryProperty(nameof(Character), "Character")]
+[QueryProperty(nameof(Item), "Item")]
 public partial class QrCodeDisplayViewModel : ViewModelBase
 {
     private readonly QrService _qrService;
-    
+
     [ObservableProperty]
     private string qrPayload = string.Empty;
 
     [ObservableProperty]
-    private Character? character;
+    private ItemModel? item;
 
     public QrCodeDisplayViewModel(QrService qrService)
     {
         _qrService = qrService;
         Title = "Zdieľať cez QR";
     }
-    
-    partial void OnCharacterChanged(Character? value)
+
+    partial void OnItemChanged(ItemModel? value)
     {
         if (value != null)
         {
             Title = $"QR: {value.Name}";
-            QrPayload = _qrService.EncodeCharacter(value);
+            QrPayload = _qrService.EncodeItem(value);
         }
     }
 }
