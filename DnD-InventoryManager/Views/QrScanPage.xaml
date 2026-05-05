@@ -28,19 +28,40 @@
                 </Border.StrokeShape>
             </Border>
 
-            <Border HorizontalOptions="Center"
-                    VerticalOptions="End"
-                    Margin="24,0,24,60"
-                    Padding="16,10"
-                    BackgroundColor="#CC000000">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="24" />
-                </Border.StrokeShape>
-                <Label Text="{Binding StatusMessage}"
-                       TextColor="White"
-                       FontSize="14"
-                       HorizontalTextAlignment="Center" />
-            </Border>
+            <VerticalStackLayout HorizontalOptions="Center"
+                                 VerticalOptions="End"
+                                 Margin="24,0,24,60"
+                                 Spacing="15">
+
+                <Border Padding="16,10"
+                        BackgroundColor="#CC000000"
+                        Stroke="#33FFFFFF"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24" />
+                    </Border.StrokeShape>
+                    <Label Text="{Binding StatusMessage}"
+                           TextColor="White"
+                           FontSize="14"
+                           HorizontalTextAlignment="Center" />
+                </Border>
+
+                <Button Text="🖼️ Vybrať z galérie"
+                        Command="{Binding PickFromGalleryCommand}"
+                        BackgroundColor="#99000000"
+                        TextColor="White"
+                        BorderColor="#66FFFFFF"
+                        BorderWidth="1"
+                        CornerRadius="20"
+                        HeightRequest="45"
+                        Padding="20,0"
+                        HorizontalOptions="Center">
+                    <Button.Shadow>
+                        <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.5" />
+                    </Button.Shadow>
+                </Button>
+            </VerticalStackLayout>
+
         </Grid>
     </Grid>
 </ContentPage>
