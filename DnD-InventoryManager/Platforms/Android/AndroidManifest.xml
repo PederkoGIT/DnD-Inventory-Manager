@@ -8,4 +8,6 @@
 	<uses-feature android:name="android.hardware.nfc" android:required="false" />
 	<uses-feature android:name="android.hardware.camera" android:required="false" />
 	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 </manifest>

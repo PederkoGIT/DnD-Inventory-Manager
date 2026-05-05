@@ -130,4 +130,10 @@ public partial class MainViewModel : ViewModelBase
     {
         await Shell.Current.GoToAsync(nameof(DiceRollerPage));
     }
+    
+    [RelayCommand]
+    public async Task ScanQrFromMainAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(QrScanPage));
+    }
 }
