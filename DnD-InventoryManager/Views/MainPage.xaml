@@ -87,6 +87,13 @@
                         HeightRequest="50" WidthRequest="50" CornerRadius="25"
                         Command="{Binding ShowDiceRollerCommand}" />
                 
+                <Button Text="QR"
+                        FontSize="14" FontAttributes="Bold"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}"
+                        TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
+                        HeightRequest="50" WidthRequest="50" CornerRadius="25"
+                        Command="{Binding ScanQrFromMainCommand}" />
+                
                 <Button Text="NFC"
                         FontSize="14" FontAttributes="Bold"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}"

@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using DnD_InventoryManager.Facades;
 using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
+using Java.Lang;
+using Exception = System.Exception;
 
 namespace DnD_InventoryManager.ViewModels;
 
@@ -11,6 +13,7 @@ public partial class QrScanViewModel : ViewModelBase
 {
     private readonly QrService _qrService;
     private readonly ItemFacade _itemFacade;
+    private readonly CharacterFacade _characterFacade;
 
     [ObservableProperty]
     private int characterId;
@@ -24,10 +27,11 @@ public partial class QrScanViewModel : ViewModelBase
     [ObservableProperty]
     private bool isDetecting;
 
-    public QrScanViewModel(QrService qrService, ItemFacade itemFacade)
+    public QrScanViewModel(QrService qrService, ItemFacade itemFacade, CharacterFacade characterFacade)
     {
         _qrService = qrService;
         _itemFacade = itemFacade;
+        _characterFacade = characterFacade;
         Title = "Skenovať QR";
     }
 
@@ -53,7 +57,41 @@ public partial class QrScanViewModel : ViewModelBase
         }
 
         var item = result.Data;
-        item.CharacterId = CharacterId;
+        
+        if (CharacterId == 0)
+        {
+            var characters = await _characterFacade.GetAllAsync();
+                
+            if (characters == null || !characters.Any())
+            {
+                await Shell.Current.DisplayAlert("Chyba", "Nemáte vytvorené žiadne postavy, komu by ste to priradili.", "OK");
+                StatusMessage = "Namierte kameru na QR kód";
+                IsDetecting = true;
+                return;
+            }
+            
+            string[] characterNames = characters.Select(c => c.Name).ToArray();
+            
+            string selectedName = await Shell.Current.DisplayActionSheet(
+                $"Kam pridať {item.Name}?", 
+                "Zrušiť", 
+                null, 
+                characterNames);
+            
+            if (string.IsNullOrEmpty(selectedName) || selectedName == "Zrušiť")
+            {
+                StatusMessage = "Namierte kameru na QR kód";
+                IsDetecting = true;
+                return;
+            }
+            var selectedCharacter = characters.First(c => c.Name == selectedName);
+            item.CharacterId = selectedCharacter.Id;
+        }
+        else
+        {
+            item.CharacterId = CharacterId;
+        }
+
         await _itemFacade.SaveAsync(item);
         
         try
