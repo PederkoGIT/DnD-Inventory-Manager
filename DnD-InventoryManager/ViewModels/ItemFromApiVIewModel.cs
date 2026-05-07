@@ -76,7 +76,6 @@ public partial class ItemFromApiVIewModel(
             await Shell.Current.DisplayAlertAsync("Error", e.Message, "OK");
         }
         
-        Item.Category = ItemCategory.ToString();
         Item.CharacterId = _characterId;
         
         await Shell.Current.GoToAsync("..", new Dictionary<string, object>()

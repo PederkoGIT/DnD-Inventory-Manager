@@ -17,7 +17,6 @@ public partial class ItemEditViewModel(
 
     public async Task LoadDataAsync()
     {
-        Title = "Add Item";
         var itemFromDb = await itemFacade.GetByIdAsync(ItemModel.Id);
         if (itemFromDb is not null)
         {
@@ -25,6 +24,11 @@ public partial class ItemEditViewModel(
             ItemModel = itemFromDb;
             NewWeight = itemFromDb.Weight;
             NewQuantity = itemFromDb.Quantity;
+        }
+        else
+        {
+            Title = "Add Item";
+            NewWeight = ItemModel.Weight;
         }
     }
     
