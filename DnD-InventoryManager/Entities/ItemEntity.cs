@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using DnD_InventoryManager.Models;
+using SQLite;
 
 namespace DnD_InventoryManager.Entities;
 
@@ -6,6 +7,7 @@ namespace DnD_InventoryManager.Entities;
 public class ItemEntity : EntityBase
 {
     public string Name { get; set; } = string.Empty;
+    public string Category { get; set; } = nameof(ItemCategoriesEnum.Equipment);
     public string Description { get; set; } = string.Empty;
     public string ImagePath { get; set; } = "/Resources/Images/dotnet_bot.png";
     public double Weight { get; set; }

@@ -31,16 +31,21 @@
                 </VerticalStackLayout>
                 
                 <VerticalStackLayout Spacing="5">
-                    <Label Text="Weight in pounds" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                    <Entry Text="{Binding NewWeight}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
+                    <Label Text="Category" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                    <Entry Placeholder="Category" Text="{Binding ItemModel.Category}" />
                 </VerticalStackLayout>
                 
-                <Grid ColumnDefinitions="*, auto" ColumnSpacing="15">
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
                     <VerticalStackLayout Grid.Column="0" Spacing="5">
                         <Label Text="Amount" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
                         <Entry Text="{Binding NewQuantity}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
+                        <Stepper Value="{Binding NewQuantity}" Minimum="0" Maximum="999" VerticalOptions="End"/>
                     </VerticalStackLayout>
-                    <Stepper Grid.Column="1" Value="{Binding NewQuantity}" Minimum="0" Maximum="999" VerticalOptions="End"/>
+                    <VerticalStackLayout Grid.Column="1" Spacing="5">
+                        <Label Text="Weight in pounds" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                        <Entry Text="{Binding NewWeight}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
+                        <Stepper Value="{Binding NewWeight}" Minimum="0" Maximum="999" VerticalOptions="End"/>
+                    </VerticalStackLayout>
                 </Grid>
                     
                     
@@ -55,9 +60,6 @@
                     Text="{Binding ItemModel.Description}" 
                     VerticalOptions="Fill"/>
             
-            <!-- <VerticalStackLayout Grid.Row="1" Spacing="5" VerticalOptions="Fill"> -->
-            <!-- </VerticalStackLayout> -->
-
             <Button Grid.Row="3"
                     Text="Save Item" 
                     Command="{Binding SaveCommand}" 

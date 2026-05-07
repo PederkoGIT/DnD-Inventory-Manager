@@ -120,7 +120,7 @@
                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CharacterDetailViewModel}}, Path=GoToItemDetailCommand}" CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
 
-                            <Grid RowDefinitions="Auto, *, Auto">
+                            <Grid RowDefinitions="Auto, *, Auto, Auto">
                                 
                                 <Grid Grid.Row="0" ColumnDefinitions="*, Auto" VerticalOptions="Start">
                                     <Label Grid.Column="0" Text="{Binding TotalWeight, StringFormat='{0} lb'}" 
@@ -141,6 +141,13 @@
 
                                 <Label Grid.Row="2" Text="{Binding Name}" 
                                        FontAttributes="Bold" FontSize="14" 
+                                       HorizontalTextAlignment="Center" 
+                                       LineBreakMode="TailTruncation" MaxLines="2" 
+                                       TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" 
+                                       VerticalOptions="End" />
+                                
+                                <Label Grid.Row="3" Text="{Binding Category}" 
+                                       FontAttributes="Italic" FontSize="12" 
                                        HorizontalTextAlignment="Center" 
                                        LineBreakMode="TailTruncation" MaxLines="2" 
                                        TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" 
