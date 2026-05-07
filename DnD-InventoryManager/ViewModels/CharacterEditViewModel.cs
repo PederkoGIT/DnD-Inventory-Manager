@@ -10,6 +10,8 @@ namespace DnD_InventoryManager.ViewModels;
 public partial class CharacterEditViewModel : ViewModelBase
 {
     private readonly CharacterFacade _characterFacade;
+    
+    private static readonly string[] DefaultPortraits = ["god.png", "knight.png", "wizard.png"];
 
     [ObservableProperty]
     public partial CharacterModel? CharacterToEdit { get; set; }
@@ -23,7 +25,8 @@ public partial class CharacterEditViewModel : ViewModelBase
     public partial CharacterSizeEnum SelectedSize { get; set; } = CharacterSizeEnum.Medium;
 
     [ObservableProperty]
-    public partial string SelectedImagePath { get; set; } = "dotnet_bot.png";
+    public partial string SelectedImagePath { get; set; } =
+        DefaultPortraits[Random.Shared.Next(DefaultPortraits.Length)];
 
     public static List<CharacterSizeEnum> AllSizes =>
         Enum.GetValues<CharacterSizeEnum>().Cast<CharacterSizeEnum>().ToList();

@@ -54,7 +54,7 @@ public partial class DiceRollerViewModel : ViewModelBase
                 Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(50));
             }
             
-            await Task.Delay(2000);
+            await Task.Delay(500);
         }
         catch (Exception ex)
         {

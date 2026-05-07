@@ -5,26 +5,43 @@
              xmlns:models="clr-namespace:DnD_InventoryManager.Models" 
              x:DataType="vm:MainViewModel" 
              Title="{Binding Title}"
-             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundLight}, Dark={StaticResource BackgroundDark}}"
              x:Class="DnD_InventoryManager.Views.MainPage">
 
     <Grid>
         <CollectionView ItemsSource="{Binding Characters}" 
-                        SelectionMode="None"
-                        EmptyView="You have no characters. Tap '+' to add characters.">
+                        SelectionMode="None">
+            
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="0,100,0,0">
+                    <!-- Pridaný biely podklad pre Dark mód -->
+                    <Border HeightRequest="80" WidthRequest="80" StrokeThickness="0" HorizontalOptions="Center"
+                            BackgroundColor="{AppThemeBinding Light=Transparent, Dark={StaticResource SurfaceLight}}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="40" />
+                        </Border.StrokeShape>
+                        <Image Source="ic_hero_empty.png" HeightRequest="64" WidthRequest="64" HorizontalOptions="Center" VerticalOptions="Center" Opacity="0.7"/>
+                    </Border>
+                    
+                    <Label Text="No characters yet" FontAttributes="Bold" FontSize="18" HorizontalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}"/>
+                    <Label Text="Tap the + button to create your first hero." FontSize="14" HorizontalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:CharacterModel">
-                    <Border Margin="15,8" 
-                            Padding="15" 
-                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource PrimaryDark}}" 
+                    <Border Margin="20,8" 
+                            Padding="12" 
+                            Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" 
                             StrokeThickness="1"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                        
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="15" />
+                            <RoundRectangle CornerRadius="16" />
                         </Border.StrokeShape>
                         
                         <Border.Shadow>
-                            <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.1" />
+                            <Shadow Brush="Black" Offset="0,2" Radius="6" Opacity="{AppThemeBinding Light=0.05, Dark=0.2}" />
                         </Border.Shadow>
 
                         <Border.GestureRecognizers>
@@ -33,33 +50,32 @@
                                 CommandParameter="{Binding .}" />
                         </Border.GestureRecognizers>
 
-                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="15">
+                        <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15" VerticalOptions="Center">
                             
-                            <Border Grid.Column="0"
-                                    HeightRequest="76" WidthRequest="76"
-                                    Stroke="{StaticResource Primary}" StrokeThickness="2"
-                                    VerticalOptions="Center">
+                            <Border Grid.Column="0" HeightRequest="60" WidthRequest="60" Stroke="{StaticResource Primary}" StrokeThickness="2">
                                 <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="38" />
+                                    <RoundRectangle CornerRadius="12" />
                                 </Border.StrokeShape>
                                 <Image Source="{Binding ImagePath}" Aspect="AspectFill" />
                             </Border>
 
-                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                <Label Text="{Binding Name}" 
-                                       FontAttributes="Bold" FontSize="18" 
-                                       TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-                            
-                                <HorizontalStackLayout Spacing="8">
-                                    <Label Text="{Binding Strength, StringFormat='STR: {0}'}" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
-                                    <Label Text="•" TextColor="{StaticResource Gray400}" />
-                                    <Label Text="{Binding Size}" FontSize="12" TextColor="{StaticResource Gray500}" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
+                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="18" TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" />
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="{Binding Strength, StringFormat='STR {0}'}" FontSize="13" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                                    <Label Text="•" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" />
+                                    <Label Text="{Binding Size}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
                                 </HorizontalStackLayout>
-
-                                <Label Text="{Binding CarryingCapacity, StringFormat='Max Load: {0} lb'}" 
-                                       FontAttributes="Bold" FontSize="14"
-                                       TextColor="{StaticResource Secondary}" 
-                                       Margin="0,4,0,0" />
+                            </VerticalStackLayout>
+                            
+                            <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="End" Spacing="2">
+                                <Border HeightRequest="22" WidthRequest="22" StrokeThickness="0" HorizontalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="11" />
+                                    </Border.StrokeShape>
+                                    <Image Source="ic_backpack.png" HeightRequest="16" WidthRequest="16" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <Label Text="{Binding CarryingCapacity, StringFormat='{0} lb'}" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Secondary}" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Grid>
                     </Border>
@@ -69,43 +85,39 @@
 
         <Border HorizontalOptions="Center"
                 VerticalOptions="End"
-                Margin="20,30" Padding="10"
-                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
-                StrokeThickness="2">
+                Margin="0,0,0,30" Padding="8"
+                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}"
+                StrokeThickness="1">
+            
             <Border.StrokeShape>
-                <RoundRectangle CornerRadius="30" />
+                <RoundRectangle CornerRadius="35" />
             </Border.StrokeShape>
+            
             <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,8" Radius="15" Opacity="0.2" />
+                <Shadow Brush="Black" Offset="0,6" Radius="15" Opacity="{AppThemeBinding Light=0.1, Dark=0.4}" />
             </Border.Shadow>
 
-            <HorizontalStackLayout Spacing="15">
-                <Button Text="🎲"
-                        FontSize="24"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}"
-                        TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
-                        HeightRequest="50" WidthRequest="50" CornerRadius="25"
-                        Command="{Binding ShowDiceRollerCommand}" />
+            <HorizontalStackLayout Spacing="10">
+                <ImageButton Source="ic_dice.png" 
+                             WidthRequest="54" HeightRequest="54" CornerRadius="27" Padding="12"
+                             BackgroundColor="{AppThemeBinding Light=Transparent, Dark={StaticResource SurfaceLight}}" 
+                             Command="{Binding ShowDiceRollerCommand}" ToolTipProperties.Text="Dice Roller"/>
                 
-                <Button Text="QR"
-                        FontSize="14" FontAttributes="Bold"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}"
-                        TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
-                        HeightRequest="50" WidthRequest="50" CornerRadius="25"
-                        Command="{Binding ScanQrFromMainCommand}" />
+                <ImageButton Source="ic_qr.png" 
+                             WidthRequest="54" HeightRequest="54" CornerRadius="27" Padding="14"
+                             BackgroundColor="{AppThemeBinding Light=Transparent, Dark={StaticResource SurfaceLight}}" 
+                             Command="{Binding ScanQrFromMainCommand}" ToolTipProperties.Text="Scan QR"/>
                 
-                <Button Text="NFC"
-                        FontSize="14" FontAttributes="Bold"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}"
-                        TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
-                        HeightRequest="50" WidthRequest="50" CornerRadius="25"
-                        Command="{Binding ListenForNfcCommand}" />
+                <ImageButton Source="ic_nfc.png" 
+                             WidthRequest="54" HeightRequest="54" CornerRadius="27" Padding="14"
+                             BackgroundColor="{AppThemeBinding Light=Transparent, Dark={StaticResource SurfaceLight}}" 
+                             Command="{Binding ListenForNfcCommand}" ToolTipProperties.Text="NFC Transfer"/>
 
-                <Button Text="+"
-                        FontSize="24" FontAttributes="Bold"
-                        BackgroundColor="{StaticResource Primary}"
-                        TextColor="{StaticResource White}"
-                        HeightRequest="50" WidthRequest="50" CornerRadius="25"
+                <BoxView WidthRequest="1" Color="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" Margin="4,10" />
+
+                <Button Text="+" FontSize="28" WidthRequest="54" HeightRequest="54" CornerRadius="27" Padding="0,0,0,4"
+                        BackgroundColor="{StaticResource Primary}" TextColor="White" FontAttributes="Bold"
                         Command="{Binding GoToAddCharacterCommand}">
                     <Button.Shadow>
                         <Shadow Brush="{StaticResource Primary}" Offset="0,4" Radius="8" Opacity="0.4" />
@@ -114,33 +126,40 @@
             </HorizontalStackLayout>
         </Border>
         
-        <Grid BackgroundColor="#A0000000" 
-              IsVisible="{Binding IsWaitingForNfc}" 
-              ZIndex="100">
-            
+        <Grid BackgroundColor="#B3000000" IsVisible="{Binding IsWaitingForNfc}" ZIndex="100">
             <Grid.GestureRecognizers>
                 <TapGestureRecognizer />
             </Grid.GestureRecognizers>
             
-            <Border BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
                     HorizontalOptions="Center" VerticalOptions="Center"
-                    Padding="35" WidthRequest="300" StrokeThickness="0">
+                    Padding="30" WidthRequest="320" StrokeThickness="0">
+                
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="20" />
+                    <RoundRectangle CornerRadius="24" />
                 </Border.StrokeShape>
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,10" Radius="20" Opacity="0.3" />
-                </Border.Shadow>
-
-                <VerticalStackLayout Spacing="25">
-                    <ActivityIndicator IsRunning="True" Color="{StaticResource Primary}" HeightRequest="45" WidthRequest="45" />
+                
+                <VerticalStackLayout Spacing="20">
+                    <Grid HeightRequest="80" WidthRequest="80" HorizontalOptions="Center">
+                        <ActivityIndicator IsRunning="True" Color="{StaticResource Primary}" HorizontalOptions="Fill" VerticalOptions="Fill" />
+                        <Border HeightRequest="40" WidthRequest="40" StrokeThickness="0" HorizontalOptions="Center" VerticalOptions="Center"
+                                BackgroundColor="{AppThemeBinding Light=Transparent, Dark={StaticResource SurfaceLight}}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="20" />
+                            </Border.StrokeShape>
+                            <Image Source="ic_nfc.png" HeightRequest="24" WidthRequest="24" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
                     
-                    <VerticalStackLayout Spacing="5">
-                        <Label Text="Ready to Read" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" HorizontalOptions="Center" />
-                        <Label Text="Approach an NFC tag to load a character." FontSize="14" TextColor="{StaticResource Gray500}" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Ready to Receive" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" HorizontalOptions="Center" />
+                        <Label Text="Hold phones together to transfer the item." FontSize="14" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                     
-                    <Button Text="Cancel" Command="{Binding CancelNfcCommand}" BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray950}}" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" CornerRadius="12" FontAttributes="Bold" />
+                    <Button Text="Cancel" Command="{Binding CancelNfcCommand}" 
+                            BackgroundColor="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" 
+                            TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" 
+                            CornerRadius="14" FontAttributes="Bold" Margin="0,10,0,0" HeightRequest="48"/>
                 </VerticalStackLayout>
             </Border>
         </Grid>

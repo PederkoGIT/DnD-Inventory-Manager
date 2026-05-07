@@ -22,7 +22,12 @@ public partial class CharacterDetailViewModel(
     public partial bool IsWaitingForNfc { get; set; }
 
     [ObservableProperty]
-    public partial ICollection<ItemModel> Items { get; set; } = [];
+    public partial ObservableCollection<ItemModel> Items { get; set; } = [];
+    
+    private List<ItemModel> _allItems = [];
+    
+    [ObservableProperty]
+    public partial string SearchQuery { get; set; } = string.Empty;
     
     [ObservableProperty]
     public partial double CurrentLoad { get; set; }
@@ -42,11 +47,15 @@ public partial class CharacterDetailViewModel(
         if (updatedCharacter != null)
         {
             Character = updatedCharacter;
-            var items = await itemFacade.GetAllByCharacterIdAsync(updatedCharacter.Id);
-            Items = items;
             Title = Character.Name;
-            CurrentLoad = Items.Sum(i => i.TotalWeight);
-            CurrentLoadPercentage = CurrentLoad / Character.CarryingCapacity;
+            
+            var items = await itemFacade.GetAllByCharacterIdAsync(updatedCharacter.Id);
+            _allItems = items.ToList();
+            
+            CurrentLoad = _allItems.Sum(i => i.Weight * i.Quantity);
+            CurrentLoadPercentage = Character.CarryingCapacity > 0 ? CurrentLoad / Character.CarryingCapacity : 0;
+            
+            FilterItems();
         }
     }
 
@@ -55,6 +64,24 @@ public partial class CharacterDetailViewModel(
         if (value != null)
         {
             Title = value.Name;
+        }
+    }
+
+    partial void OnSearchQueryChanged(string value)
+    {
+        FilterItems();
+    }
+
+    private void FilterItems()
+    {
+        if (string.IsNullOrEmpty(SearchQuery))
+        {
+            Items = new ObservableCollection<ItemModel>(_allItems);
+        }
+        else
+        {
+            var filtered = _allItems.Where(i => i.Name.ToLower().Contains(SearchQuery.ToLower()));
+            Items = new ObservableCollection<ItemModel>(filtered);
         }
     }
 
@@ -112,7 +139,12 @@ public partial class CharacterDetailViewModel(
                         recievedItem.CharacterId = Character.Id;
 
                         await itemFacade.SaveAsync(recievedItem);
-                        Items.Add(recievedItem);
+                        
+                        _allItems.Add(recievedItem);
+                        FilterItems();
+                        
+                        CurrentLoad += (recievedItem.Weight * recievedItem.Quantity);
+                        CurrentLoadPercentage = Character.CarryingCapacity > 0 ? CurrentLoad / Character.CarryingCapacity : 0;
 
                         await Shell.Current.DisplayAlertAsync("Loot acquired!",
                             $"{recievedItem.Name} added to inventory.", "OK");

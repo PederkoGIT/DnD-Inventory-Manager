@@ -8,7 +8,7 @@ public class CharacterModel
     public int Strength { get; set; }
     public CharacterSizeEnum Size { get; set; }
 
-    public double CarryingCapacity => Strength * 15;
+    public double CarryingCapacity => Strength * 15 * GetSizeModifier();
     
     private double GetSizeModifier() => Size switch
     {
