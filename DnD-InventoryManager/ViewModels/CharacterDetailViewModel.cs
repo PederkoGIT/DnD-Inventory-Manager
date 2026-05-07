@@ -90,7 +90,7 @@ public partial class CharacterDetailViewModel(
         }
         else
         {
-            filtered = _allItems.Where(i => i.Category.Contains(CategoryFilter, StringComparison.CurrentCultureIgnoreCase));
+            filtered = _allItems.Where(i => i.Category.Equals(CategoryFilter, StringComparison.CurrentCultureIgnoreCase));
         }
 
         if (!string.IsNullOrEmpty(SearchQuery))
