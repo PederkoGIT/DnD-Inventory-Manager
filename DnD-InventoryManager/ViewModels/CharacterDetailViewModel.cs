@@ -152,6 +152,18 @@ public partial class CharacterDetailViewModel(
                     {
                         IsWaitingForNfc = false;
 
+                        var allCategories = await itemFacade.GetAllCategories();
+                        var selectedCategory = await Shell.Current.DisplayActionSheetAsync(
+                            $"Choose category for the new item {recievedItem.Name}?", 
+                            "Cancel", 
+                            null, 
+                            allCategories.ToArray()
+                        );
+                        if (string.IsNullOrEmpty(selectedCategory) || selectedCategory.Equals("Cancel"))
+                        {
+                            selectedCategory = nameof(ItemCategoriesEnum.Equipment);
+                        }
+                        recievedItem.Category = selectedCategory;
                         recievedItem.CharacterId = Character.Id;
 
                         await itemFacade.SaveAsync(recievedItem);
@@ -161,7 +173,7 @@ public partial class CharacterDetailViewModel(
                         
                         CurrentLoad += (recievedItem.Weight * recievedItem.Quantity);
                         CurrentLoadPercentage = Character.CarryingCapacity > 0 ? CurrentLoad / Character.CarryingCapacity : 0;
-
+                        
                         await Shell.Current.DisplayAlertAsync("Loot acquired!",
                             $"{recievedItem.Name} added to inventory.", "OK");
                     }
