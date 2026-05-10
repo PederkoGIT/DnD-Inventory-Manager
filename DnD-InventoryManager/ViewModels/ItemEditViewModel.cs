@@ -11,30 +11,50 @@ public partial class ItemEditViewModel(
     ItemFacade itemFacade
     ) : ViewModelBase
 {
+    
+    private static readonly string[] DefaultItemImages = ["armor.png", "sword.png", "potion.png"];
+    
     [ObservableProperty] public partial ItemModel ItemModel { get; set; } = new() ;
     [ObservableProperty] public partial double NewWeight { get; set; }
     [ObservableProperty] public partial int NewQuantity { get; set; } = 1;
     [ObservableProperty] public partial string NewCategory { get; set; } = string.Empty;
-    [ObservableProperty] public partial string PickerCategory { get; set; } = string.Empty;
+    [ObservableProperty] public partial string? PickerCategory { get; set; } = string.Empty;
     [ObservableProperty] public partial List<string> AllCategories { get; set; } = [];
+    [ObservableProperty] public partial string SelectedImagePath { get; set; } = string.Empty;
 
     public async Task LoadDataAsync()
     {
-        AllCategories = await itemFacade.GetAllCategories();
+        var defaultCategories = Enum.GetValues<ItemCategoriesEnum>().Select(e => e.ToString());
+        var dbCategories = await itemFacade.GetAllCategories();
+    
+        AllCategories = defaultCategories.Union(dbCategories).ToList();
+
         var itemFromDb = await itemFacade.GetByIdAsync(ItemModel.Id);
+    
         if (itemFromDb is not null)
         {
             Title = "Edit Item";
             ItemModel = itemFromDb;
             NewWeight = itemFromDb.Weight;
-            NewQuantity = itemFromDb.Quantity;
+            NewQuantity = itemFromDb.Quantity < 1 ? 1 : itemFromDb.Quantity;
             NewCategory = itemFromDb.Category;
+            SelectedImagePath = itemFromDb.ImagePath;
         }
         else
         {
             Title = "Add Item";
             NewWeight = ItemModel.Weight;
-            NewCategory = ItemModel.Category;
+            NewQuantity = 1;
+            NewCategory = string.IsNullOrEmpty(ItemModel.Category) ? nameof(ItemCategoriesEnum.Equipment) : ItemModel.Category;
+            
+            if (!string.IsNullOrEmpty(ItemModel.ImagePath) && ItemModel.ImagePath.StartsWith("http"))
+            {
+                SelectedImagePath = ItemModel.ImagePath;
+            }
+            else
+            {
+                SelectedImagePath = DefaultItemImages[Random.Shared.Next(DefaultItemImages.Length)];
+            }
         }
     }
     
@@ -52,7 +72,7 @@ public partial class ItemEditViewModel(
     {
         NewQuantity = value switch
         {
-            < 0 => 0,
+            < 1 => 1,
             > 999 => 999,
             _ => NewQuantity
         };
@@ -60,7 +80,12 @@ public partial class ItemEditViewModel(
 
     partial void OnPickerCategoryChanged(string value)
     {
-        NewCategory = PickerCategory = value;
+        if (!string.IsNullOrEmpty(value))
+        {
+            NewCategory = value;
+            
+            MainThread.BeginInvokeOnMainThread(() => PickerCategory = null);
+        }
     }
     
     [RelayCommand]
@@ -94,6 +119,8 @@ public partial class ItemEditViewModel(
         ItemModel.Weight = NewWeight;
         ItemModel.Quantity = NewQuantity;
         ItemModel.Category = NewCategory;
+        ItemModel.ImagePath = SelectedImagePath;
+        
         await itemFacade.SaveAsync(ItemModel);
         await Shell.Current.GoToAsync("..");
     }

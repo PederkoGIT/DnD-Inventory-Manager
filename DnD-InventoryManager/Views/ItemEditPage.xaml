@@ -1,81 +1,107 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:vm="clr-namespace:DnD_InventoryManager.ViewModels"
              x:Class="DnD_InventoryManager.Views.ItemEditPage"
              x:DataType="vm:ItemEditViewModel"
-             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundLight}, Dark={StaticResource BackgroundDark}}"
              Title="{Binding Title}">
     
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Template" Command="{Binding GetItemFromApiCommand}"/>
+        <ToolbarItem Text="Template API" Command="{Binding GetItemFromApiCommand}"/>
     </ContentPage.ToolbarItems>
     
-    <ContentPage.Content>
-        <Grid RowDefinitions="auto, auto, *, auto" Padding="25" RowSpacing="20">
-            <VerticalStackLayout Grid.Row="0" Spacing="20">
-                <Border HorizontalOptions="Center" HeightRequest="160" WidthRequest="160"
-                        Stroke="{StaticResource Primary}" StrokeThickness="2">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="80" /></Border.StrokeShape>
-                    <Image Source="{Binding ItemModel.ImagePath}" Aspect="AspectFill" />
-                </Border>
+    <Grid RowDefinitions="Auto, *, Auto" Padding="20,15,20,25">
             
-                <Button Text="Select Image" Command="{Binding PickImageCommand}" 
-                        BackgroundColor="{StaticResource Secondary}" 
-                        TextColor="{StaticResource SecondaryDarkText}" />
+        <VerticalStackLayout Grid.Row="0" Spacing="10" HorizontalOptions="Center" Margin="0,0,0,15">
+            <Border HeightRequest="120" WidthRequest="120" Stroke="{StaticResource Primary}" StrokeThickness="2">
+                <Border.StrokeShape><RoundRectangle CornerRadius="16" /></Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="{AppThemeBinding Light=0.1, Dark=0.3}" />
+                </Border.Shadow>
+                <Image Source="{Binding SelectedImagePath}" Aspect="AspectFill" />
+            </Border>
+            <Button Text="Change Image" Command="{Binding PickImageCommand}" BackgroundColor="Transparent" 
+                    TextColor="{StaticResource Primary}" FontAttributes="Bold" FontSize="14" Padding="0,5"/>
+        </VerticalStackLayout>
 
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="Item name" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                    <Entry Placeholder="Name..." Text="{Binding ItemModel.Name}" />
-                </VerticalStackLayout>
-                
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="Category" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+        <ScrollView Grid.Row="1" VerticalOptions="Start">
+            <Border Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" 
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" 
+                    Padding="20" Margin="0,0,0,10">
+                <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="6" Opacity="{AppThemeBinding Light=0.05, Dark=0.2}" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="20">
                     
-                    <Grid ColumnDefinitions="2*, *">
-                        <Entry Grid.Column="0" Placeholder="Category" Text="{Binding NewCategory}" />
-                        <Picker Grid.Column="1"
-                                Title="Category"
-                                ItemsSource="{Binding AllCategories}"
-                                SelectedItem="{Binding PickerCategory}"
-                                BackgroundColor="Transparent"
-                                TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}"
-                                FontSize="14"/>
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="ITEM NAME" FontSize="11" FontAttributes="Bold" CharacterSpacing="1" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                        <Border Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" BackgroundColor="Transparent" Padding="12,0">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                            <Entry Placeholder="e.g. Health Potion..." Text="{Binding ItemModel.Name}" FontSize="16" TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="CATEGORY" FontSize="11" FontAttributes="Bold" CharacterSpacing="1" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                        <Border Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" BackgroundColor="Transparent" Padding="12,0">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                            
+                            <Grid ColumnDefinitions="*, 45">
+                                <Entry Grid.Column="0" Placeholder="e.g. Consumables..." Text="{Binding NewCategory}" FontSize="16" TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" />
+                                
+                                <Picker Grid.Column="1" Title="▼" ItemsSource="{Binding AllCategories}" SelectedItem="{Binding PickerCategory}" 
+                                        TextColor="{StaticResource Primary}" BackgroundColor="Transparent" TitleColor="{StaticResource Primary}" 
+                                        FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+                    
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
+                        
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                            <Label Text="AMOUNT" FontSize="11" FontAttributes="Bold" CharacterSpacing="1" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" HorizontalOptions="Center"/>
+                            <Border Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" BackgroundColor="Transparent" Padding="12,0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                <Entry Text="{Binding NewQuantity}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center" FontSize="16" TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}"/>
+                            </Border>
+                            <Stepper Value="{Binding NewQuantity}" Minimum="1" Maximum="999" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="WEIGHT (LB)" FontSize="11" FontAttributes="Bold" CharacterSpacing="1" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" HorizontalOptions="Center"/>
+                            <Border Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" BackgroundColor="Transparent" Padding="12,0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                <Entry Text="{Binding NewWeight}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center" FontSize="16" TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}"/>
+                            </Border>
+                            <Stepper Value="{Binding NewWeight}" Minimum="0" Maximum="999" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                        
                     </Grid>
-                </VerticalStackLayout>
-                
-                <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
-                    <VerticalStackLayout Grid.Column="0" Spacing="5">
-                        <Label Text="Amount" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                        <Entry Text="{Binding NewQuantity}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
-                        <Stepper Value="{Binding NewQuantity}" Minimum="0" Maximum="999" VerticalOptions="End"/>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="1" Spacing="5">
-                        <Label Text="Weight in pounds" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
-                        <Entry Text="{Binding NewWeight}" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
-                        <Stepper Value="{Binding NewWeight}" Minimum="0" Maximum="999" VerticalOptions="End"/>
-                    </VerticalStackLayout>
-                </Grid>
-                    
-                    
-            </VerticalStackLayout>
 
-            <Label Grid.Row="1"
-                   Text="Description" 
-                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="DESCRIPTION" FontSize="11" FontAttributes="Bold" CharacterSpacing="1" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                        <Border Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" BackgroundColor="Transparent" Padding="12,4">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                            <Editor Placeholder="Describe your item here..." Text="{Binding ItemModel.Description}" 
+                                    AutoSize="TextChanges" MinimumHeightRequest="80"
+                                    FontSize="14" TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" />
+                        </Border>
+                    </VerticalStackLayout>
+                    
+                </VerticalStackLayout>
+            </Border>
+        </ScrollView>
+
+        <Button Grid.Row="2" Text="SAVE ITEM" Command="{Binding SaveCommand}" 
+                BackgroundColor="{StaticResource Primary}" TextColor="White" 
+                HeightRequest="55" CornerRadius="16" FontAttributes="Bold" CharacterSpacing="1">
+            <Button.Shadow>
+                <Shadow Brush="{StaticResource Primary}" Offset="0,4" Radius="10" Opacity="0.4" />
+            </Button.Shadow>
+        </Button>
             
-            <Editor Grid.Row="2" 
-                    Placeholder="Description..." 
-                    Text="{Binding ItemModel.Description}" 
-                    VerticalOptions="Fill"/>
-            
-            <Button Grid.Row="3"
-                    Text="Save Item" 
-                    Command="{Binding SaveCommand}" 
-                    Margin="0,20,0,0" />
-        </Grid>
-            
-    </ContentPage.Content>
+    </Grid>
 </ContentPage>
