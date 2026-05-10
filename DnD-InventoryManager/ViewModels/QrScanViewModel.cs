@@ -1,9 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnD_InventoryManager.Facades;
-using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
-using Java.Lang;
 using Exception = System.Exception;
 
 namespace DnD_InventoryManager.ViewModels;
@@ -16,23 +14,23 @@ public partial class QrScanViewModel : ViewModelBase
     private readonly CharacterFacade _characterFacade;
 
     [ObservableProperty]
-    private int characterId;
+    private int _characterId;
 
     [ObservableProperty]
-    private bool isProcessing;
+    private bool _isProcessing;
 
     [ObservableProperty]
-    private string statusMessage = "Namierte kameru na QR kód";
+    private string _statusMessage = "Point the camera at the QR code";
 
     [ObservableProperty]
-    private bool isDetecting;
+    private bool _isDetecting;
 
     public QrScanViewModel(QrService qrService, ItemFacade itemFacade, CharacterFacade characterFacade)
     {
         _qrService = qrService;
         _itemFacade = itemFacade;
         _characterFacade = characterFacade;
-        Title = "Skenovať QR";
+        Title = "Scan QR";
     }
 
     [RelayCommand]
@@ -42,7 +40,7 @@ public partial class QrScanViewModel : ViewModelBase
         IsProcessing = true;
         IsDetecting = false;
 
-        StatusMessage = "QR kód nájdený, spracovávam...";
+        StatusMessage = "QR code was found, processing...";
 
         var result = _qrService.DecodeItem(barcodeText);
 
@@ -63,7 +61,7 @@ public partial class QrScanViewModel : ViewModelBase
                 
             if (characters.Count == 0)
             {
-                await Shell.Current.DisplayAlertAsync("Chyba", "Nemáte vytvorené žiadne postavy, komu by ste to priradili.", "OK");
+                await Shell.Current.DisplayAlertAsync("Error", "You don't have any characters created to assign this to.", "OK");
                 StartScanning();
                 return;
             }
@@ -71,12 +69,12 @@ public partial class QrScanViewModel : ViewModelBase
             var characterNames = characters.Select(c => c.Name).ToArray();
             
             var selectedName = await Shell.Current.DisplayActionSheetAsync(
-                $"Kam pridať {item.Name}?", 
-                "Zrušiť", 
+                $"Where do you want to add {item.Name}?", 
+                "Cancel", 
                 null, 
                 characterNames);
             
-            if (string.IsNullOrEmpty(selectedName) || selectedName == "Zrušiť")
+            if (string.IsNullOrEmpty(selectedName) || selectedName == "Cancel")
             {
                 StartScanning();
                 return;
@@ -96,6 +94,7 @@ public partial class QrScanViewModel : ViewModelBase
             null, 
             allCategories.ToArray()
             );
+            
         if (string.IsNullOrEmpty(selectedCategory) || selectedCategory == "Cancel")
         {
             StartScanning();
@@ -118,23 +117,23 @@ public partial class QrScanViewModel : ViewModelBase
         {
             await Shell.Current.DisplayAlertAsync(
                 "Loot acquired!",
-                $"Item \"{item.Name}\" bol pridaný do inventára.",
+                $"Item \"{item.Name}\" was added to inventory.",
                 "OK");
             await Shell.Current.GoToAsync("..");
         });
     }
     
     [RelayCommand]
-    public async Task PickFromGalleryAsync()
+    private async Task PickFromGalleryAsync()
     {
         try
         {
             IsDetecting = false;
-            StatusMessage = "Otváram galériu...";
+            StatusMessage = "Opening gallery...";
 
             var photo = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions
             {
-                Title = "Vyberte QR kód"
+                Title = "Select a photo with QR code"
             });
 
             if (photo == null)
@@ -143,9 +142,9 @@ public partial class QrScanViewModel : ViewModelBase
                 return;
             }
 
-            StatusMessage = "Spracovávam obrázok...";
+            StatusMessage = "Processing photo...";
             using var stream = await photo.OpenReadAsync();
-            string barcodeText = null;
+            string? barcodeText = null;
 
 #if ANDROID
             var bitmap = Android.Graphics.BitmapFactory.DecodeStream(stream);
@@ -180,7 +179,7 @@ public partial class QrScanViewModel : ViewModelBase
 
             if (string.IsNullOrEmpty(barcodeText))
             {
-                StatusMessage = "❌ V obrázku sa nenašiel žiadny čitateľný QR kód.";
+                StatusMessage = "No QR code found in image.";
                 await Task.Delay(2500);
                 
                 StartScanning();
@@ -191,8 +190,8 @@ public partial class QrScanViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            StatusMessage = "⚠️ Nastala chyba pri načítaní obrázka.";
-            Console.WriteLine($"Chyba galérie: {ex.Message}");
+            StatusMessage = "Loading image error.";
+            Console.WriteLine($"Gallery error: {ex.Message}");
             await Task.Delay(2500);
             
             StartScanning();
@@ -201,7 +200,7 @@ public partial class QrScanViewModel : ViewModelBase
 
     private void StartScanning()
     {
-        StatusMessage = "Namierte kameru na QR kód";
+        StatusMessage = "Point the camera at the QR code";
         IsDetecting = true;
     }
 }

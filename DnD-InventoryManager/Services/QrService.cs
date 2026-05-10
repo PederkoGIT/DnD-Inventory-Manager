@@ -16,7 +16,7 @@ public class QrItemDto
 
 public class QrService
 {
-    public string EncodeItem(ItemModel item)
+    public static string EncodeItem(ItemModel item)
     {
         var dto = new QrItemDto
         {
@@ -34,7 +34,7 @@ public class QrService
     public (bool IsSuccess, ItemModel? Data, string ErrorMessage) DecodeItem(string payload)
     {
         if (string.IsNullOrWhiteSpace(payload))
-            return (false, null, "Naskenovaný QR kód je prázdny.");
+            return (false, null, "The scanned QR code is empty");
 
         try
         {
@@ -42,7 +42,7 @@ public class QrService
             
             var dto = JsonSerializer.Deserialize<QrItemDto>(jsonText);
             if (dto == null)
-                return (false, null, "Dáta z QR kódu sa nepodarilo rozpoznať.");
+                return (false, null, "Failed to parse data from the QR code");
 
             var item = new ItemModel
             {
@@ -57,19 +57,19 @@ public class QrService
         }
         catch (FormatException)
         {
-            return (false, null, "Naskenovaný QR kód nie je v správnom komprimovanom formáte.");
+            return (false, null, "The scanned QR code is not in a valid compressed format.");
         }
         catch (JsonException ex)
         {
-            return (false, null, $"Naskenovaný kód nie je platný D&D item. Detail: {ex.Message}");
+            return (false, null, $"The scanned code is not a valid D&D item. Details: {ex.Message}");
         }
         catch (Exception ex)
         {
-            return (false, null, $"Vyskytla sa neznáma chyba pri čítaní QR kódu: {ex.Message}");
+            return (false, null, $"An unknown error occurred while reading the QR code: {ex.Message}");
         }
     }
     
-    private string Compress(string text)
+    private static string Compress(string text)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(text);
         
@@ -84,7 +84,7 @@ public class QrService
         return Convert.ToBase64String(memoryStreamOutput.ToArray());
     }
 
-    private string Decompress(string compressedBase64)
+    private static string Decompress(string compressedBase64)
     {
         byte[] bytes = Convert.FromBase64String(compressedBase64);
         

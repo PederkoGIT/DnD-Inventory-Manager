@@ -10,23 +10,21 @@ public partial class QrCodeDisplayViewModel : ViewModelBase
     private readonly QrService _qrService;
 
     [ObservableProperty]
-    private string qrPayload = string.Empty;
+    private string _qrPayload = string.Empty;
 
     [ObservableProperty]
-    private ItemModel? item;
+    private ItemModel? _item;
 
     public QrCodeDisplayViewModel(QrService qrService)
     {
         _qrService = qrService;
-        Title = "Zdieľať cez QR";
+        Title = "Share via QR";
     }
 
     partial void OnItemChanged(ItemModel? value)
     {
-        if (value != null)
-        {
-            Title = $"QR: {value.Name}";
-            QrPayload = _qrService.EncodeItem(value);
-        }
+        if (value == null) return;
+        Title = $"QR: {value.Name}";
+        QrPayload = QrService.EncodeItem(value);
     }
 }
