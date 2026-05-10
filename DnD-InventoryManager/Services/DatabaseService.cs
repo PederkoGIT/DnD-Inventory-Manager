@@ -69,4 +69,13 @@ public class DatabaseService
         await connection.ExecuteAsync($"delete from Items where CharacterId={characterId}");
         await connection.CloseAsync();
     }
+
+    public async Task<List<string>> GetAllCategories()
+    {
+        var connection = new SQLiteAsyncConnection(_dbPath);
+        var categories = await connection
+            .QueryScalarsAsync<string>($"SELECT DISTINCT({nameof(ItemEntity.Category)}) FROM Items ");
+        await connection.CloseAsync();
+        return categories;
+    }
 }

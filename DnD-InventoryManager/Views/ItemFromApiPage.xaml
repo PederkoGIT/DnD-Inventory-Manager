@@ -15,11 +15,9 @@
                 <Picker Title="Select category..."
                         ItemsSource="{x:Static vm:ItemFromApiVIewModel.AllCategories}" 
                         SelectedItem="{Binding ItemCategory}" 
-                        SelectedIndexChanged="Picker_OnSelectedIndexChanged"
                         FontSize="16" />
                 <Entry Placeholder="name of a item"
-                       Text="{Binding SearchedItem}"
-                       TextChanged="OnSearchedItemChanged"/>
+                       Text="{Binding SearchedItem}"/>
             </VerticalStackLayout>
             
             <CollectionView Grid.Row="1"

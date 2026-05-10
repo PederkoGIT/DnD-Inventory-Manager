@@ -14,10 +14,13 @@ public partial class ItemEditViewModel(
     [ObservableProperty] public partial ItemModel ItemModel { get; set; } = new() ;
     [ObservableProperty] public partial double NewWeight { get; set; }
     [ObservableProperty] public partial int NewQuantity { get; set; } = 1;
+    [ObservableProperty] public partial string NewCategory { get; set; } = string.Empty;
+    [ObservableProperty] public partial string PickerCategory { get; set; } = string.Empty;
+    [ObservableProperty] public partial List<string> AllCategories { get; set; } = [];
 
     public async Task LoadDataAsync()
     {
-        Title = "Add Item";
+        AllCategories = await itemFacade.GetAllCategories();
         var itemFromDb = await itemFacade.GetByIdAsync(ItemModel.Id);
         if (itemFromDb is not null)
         {
@@ -25,6 +28,13 @@ public partial class ItemEditViewModel(
             ItemModel = itemFromDb;
             NewWeight = itemFromDb.Weight;
             NewQuantity = itemFromDb.Quantity;
+            NewCategory = itemFromDb.Category;
+        }
+        else
+        {
+            Title = "Add Item";
+            NewWeight = ItemModel.Weight;
+            NewCategory = ItemModel.Category;
         }
     }
     
@@ -48,6 +58,11 @@ public partial class ItemEditViewModel(
         };
     }
 
+    partial void OnPickerCategoryChanged(string value)
+    {
+        NewCategory = PickerCategory = value;
+    }
+    
     [RelayCommand]
     private async Task PickImageAsync()
     {
@@ -78,6 +93,7 @@ public partial class ItemEditViewModel(
     {
         ItemModel.Weight = NewWeight;
         ItemModel.Quantity = NewQuantity;
+        ItemModel.Category = NewCategory;
         await itemFacade.SaveAsync(ItemModel);
         await Shell.Current.GoToAsync("..");
     }

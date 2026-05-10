@@ -40,8 +40,18 @@ public partial class ItemFromApiVIewModel(
         _allMagicItemsApiList = await itemFacade.GetAllMagicItemsAsync();
         EquipmentApiList = _allEquipmentApiList.ToList();
     }
-    
-    public void OnSearchedItemChanged()
+
+    partial void OnSearchedItemChanged(string value)
+    {
+        FilterItems();
+    }
+
+    partial void OnItemCategoryChanged(ItemCategoriesEnum value)
+    {
+        FilterItems();
+    }
+
+    private void FilterItems()
     {
 
         EquipmentApiList = ItemCategory switch
@@ -76,7 +86,6 @@ public partial class ItemFromApiVIewModel(
             await Shell.Current.DisplayAlertAsync("Error", e.Message, "OK");
         }
         
-        Item.Category = ItemCategory.ToString();
         Item.CharacterId = _characterId;
         
         await Shell.Current.GoToAsync("..", new Dictionary<string, object>()

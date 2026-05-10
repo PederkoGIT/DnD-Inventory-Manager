@@ -51,8 +51,7 @@ public partial class QrScanViewModel : ViewModelBase
             StatusMessage = result.ErrorMessage;
             await Task.Delay(2000);
             IsProcessing = false;
-            IsDetecting = true;
-            StatusMessage = "Namierte kameru na QR kód";
+            StartScanning();
             return;
         }
 
@@ -62,17 +61,16 @@ public partial class QrScanViewModel : ViewModelBase
         {
             var characters = await _characterFacade.GetAllAsync();
                 
-            if (characters == null || !characters.Any())
+            if (characters.Count == 0)
             {
-                await Shell.Current.DisplayAlert("Chyba", "Nemáte vytvorené žiadne postavy, komu by ste to priradili.", "OK");
-                StatusMessage = "Namierte kameru na QR kód";
-                IsDetecting = true;
+                await Shell.Current.DisplayAlertAsync("Chyba", "Nemáte vytvorené žiadne postavy, komu by ste to priradili.", "OK");
+                StartScanning();
                 return;
             }
             
-            string[] characterNames = characters.Select(c => c.Name).ToArray();
+            var characterNames = characters.Select(c => c.Name).ToArray();
             
-            string selectedName = await Shell.Current.DisplayActionSheet(
+            var selectedName = await Shell.Current.DisplayActionSheetAsync(
                 $"Kam pridať {item.Name}?", 
                 "Zrušiť", 
                 null, 
@@ -80,8 +78,7 @@ public partial class QrScanViewModel : ViewModelBase
             
             if (string.IsNullOrEmpty(selectedName) || selectedName == "Zrušiť")
             {
-                StatusMessage = "Namierte kameru na QR kód";
-                IsDetecting = true;
+                StartScanning();
                 return;
             }
             var selectedCharacter = characters.First(c => c.Name == selectedName);
@@ -92,11 +89,25 @@ public partial class QrScanViewModel : ViewModelBase
             item.CharacterId = CharacterId;
         }
 
+        var allCategories = await _itemFacade.GetAllCategories();
+        var selectedCategory = await Shell.Current.DisplayActionSheetAsync(
+            $"Choose category for the new item {item.Name}?", 
+            "Cancel", 
+            null, 
+            allCategories.ToArray()
+            );
+        if (string.IsNullOrEmpty(selectedCategory) || selectedCategory == "Cancel")
+        {
+            StartScanning();
+            return;
+        }
+        item.Category = selectedCategory;
+        
         await _itemFacade.SaveAsync(item);
         
         try
         {
-            Microsoft.Maui.Devices.Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(200));
+            Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(200));
         }
         catch (Exception ex)
         {
@@ -128,8 +139,7 @@ public partial class QrScanViewModel : ViewModelBase
 
             if (photo == null)
             {
-                StatusMessage = "Namierte kameru na QR kód";
-                IsDetecting = true;
+                StartScanning();
                 return;
             }
 
@@ -173,8 +183,7 @@ public partial class QrScanViewModel : ViewModelBase
                 StatusMessage = "❌ V obrázku sa nenašiel žiadny čitateľný QR kód.";
                 await Task.Delay(2500);
                 
-                StatusMessage = "Namierte kameru na QR kód";
-                IsDetecting = true;
+                StartScanning();
                 return;
             }
             
@@ -186,8 +195,13 @@ public partial class QrScanViewModel : ViewModelBase
             Console.WriteLine($"Chyba galérie: {ex.Message}");
             await Task.Delay(2500);
             
-            StatusMessage = "Namierte kameru na QR kód";
-            IsDetecting = true;
+            StartScanning();
         }
+    }
+
+    private void StartScanning()
+    {
+        StatusMessage = "Namierte kameru na QR kód";
+        IsDetecting = true;
     }
 }
