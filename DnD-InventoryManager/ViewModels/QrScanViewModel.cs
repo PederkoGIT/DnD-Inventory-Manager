@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnD_InventoryManager.Facades;
 using DnD_InventoryManager.Services;
@@ -49,8 +49,7 @@ public partial class QrScanViewModel : ViewModelBase
             StatusMessage = result.ErrorMessage;
             await Task.Delay(2000);
             IsProcessing = false;
-            IsDetecting = true;
-            StatusMessage = "Point the camera at the QR code";
+            StartScanning();
             return;
         }
 
@@ -60,17 +59,16 @@ public partial class QrScanViewModel : ViewModelBase
         {
             var characters = await _characterFacade.GetAllAsync();
                 
-            if (!characters.Any())
+            if (characters.Count == 0)
             {
-                await Shell.Current.DisplayAlertAsync("Error", "You don´t have selected Character to equip item.", "OK");
-                StatusMessage = "Point the camera at the QR code";
-                IsDetecting = true;
+                await Shell.Current.DisplayAlertAsync("Error", "You don't have any characters created to assign this to.", "OK");
+                StartScanning();
                 return;
             }
             
-            string[] characterNames = characters.Select(c => c.Name).ToArray();
+            var characterNames = characters.Select(c => c.Name).ToArray();
             
-            string selectedName = await Shell.Current.DisplayActionSheetAsync(
+            var selectedName = await Shell.Current.DisplayActionSheetAsync(
                 $"Where do you want to add {item.Name}?", 
                 "Cancel", 
                 null, 
@@ -78,8 +76,7 @@ public partial class QrScanViewModel : ViewModelBase
             
             if (string.IsNullOrEmpty(selectedName) || selectedName == "Cancel")
             {
-                StatusMessage = "Point the camera at the QR code";
-                IsDetecting = true;
+                StartScanning();
                 return;
             }
             var selectedCharacter = characters.First(c => c.Name == selectedName);
@@ -90,6 +87,21 @@ public partial class QrScanViewModel : ViewModelBase
             item.CharacterId = CharacterId;
         }
 
+        var allCategories = await _itemFacade.GetAllCategories();
+        var selectedCategory = await Shell.Current.DisplayActionSheetAsync(
+            $"Choose category for the new item {item.Name}?", 
+            "Cancel", 
+            null, 
+            allCategories.ToArray()
+            );
+            
+        if (string.IsNullOrEmpty(selectedCategory) || selectedCategory == "Cancel")
+        {
+            StartScanning();
+            return;
+        }
+        item.Category = selectedCategory;
+        
         await _itemFacade.SaveAsync(item);
         
         try
@@ -105,7 +117,7 @@ public partial class QrScanViewModel : ViewModelBase
         {
             await Shell.Current.DisplayAlertAsync(
                 "Loot acquired!",
-                $"Item \"{item.Name}\" was added to inventory",
+                $"Item \"{item.Name}\" was added to inventory.",
                 "OK");
             await Shell.Current.GoToAsync("..");
         });
@@ -117,17 +129,21 @@ public partial class QrScanViewModel : ViewModelBase
         try
         {
             IsDetecting = false;
-            StatusMessage = "Opening gallery";
+            StatusMessage = "Opening gallery...";
 
-            var photos = await MediaPicker.Default.PickPhotosAsync(new MediaPickerOptions
+            var photo = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions
             {
                 Title = "Select a photo with QR code"
             });
 
-            var photo = photos.FirstOrDefault();
+            if (photo == null)
+            {
+                StartScanning();
+                return;
+            }
 
             StatusMessage = "Processing photo...";
-            var stream = await photo.OpenReadAsync();
+            using var stream = await photo.OpenReadAsync();
             string? barcodeText = null;
 
 #if ANDROID
@@ -163,11 +179,10 @@ public partial class QrScanViewModel : ViewModelBase
 
             if (string.IsNullOrEmpty(barcodeText))
             {
-                StatusMessage = "No QR code found in image";
+                StatusMessage = "No QR code found in image.";
                 await Task.Delay(2500);
                 
-                StatusMessage = "Point the camera at the QR code";
-                IsDetecting = true;
+                StartScanning();
                 return;
             }
             
@@ -175,12 +190,17 @@ public partial class QrScanViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            StatusMessage = "Loading image error";
+            StatusMessage = "Loading image error.";
             Console.WriteLine($"Gallery error: {ex.Message}");
             await Task.Delay(2500);
             
-            StatusMessage = "Point the camera at the QR code";
-            IsDetecting = true;
+            StartScanning();
         }
+    }
+
+    private void StartScanning()
+    {
+        StatusMessage = "Point the camera at the QR code";
+        IsDetecting = true;
     }
 }

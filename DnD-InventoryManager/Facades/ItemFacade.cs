@@ -38,6 +38,11 @@ public class ItemFacade(
         await databaseService.DeleteAsync<ItemEntity>(id);
     }
 
+    public async Task<List<string>> GetAllCategories()
+    {
+        return await databaseService.GetAllCategories();
+    }
+    
     public async Task<ItemModel> GetFromEquipmentApi(string index)
     {
         var resp = await equipmentClient.EquipmentAsync(index.Replace(" ", "-").ToLower());

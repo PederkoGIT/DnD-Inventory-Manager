@@ -19,11 +19,13 @@ public partial class ItemMapper
     public static ItemModel EquipmentModelToItemModel(EquipmentModel equipment)
     {
         var description = (JArray)equipment.AdditionalProperties["desc"];
+        var equipmentCategory = (JObject)equipment.AdditionalProperties["equipment_category"];
         return new ItemModel
         {
             Name = equipment.AdditionalProperties["name"] as string ?? "",
             Weight = equipment.AdditionalProperties["weight"] as long? ?? 0,
-            Description = string.Join(", ", description)
+            Description = string.Join(", ", description),
+            Category = equipmentCategory.Value<string>("name") ?? ""
         };
     }
 
@@ -33,7 +35,8 @@ public partial class ItemMapper
         {
             Name = magicItem.Name,
             Description = string.Join(", ", magicItem.Desc),
-            ImagePath = IAllItemsApiClient.BaseUrl + magicItem.Image
+            ImagePath = IAllItemsApiClient.BaseUrl + magicItem.Image,
+            Category = magicItem.Equipment_category.Name
         };
     }
 }

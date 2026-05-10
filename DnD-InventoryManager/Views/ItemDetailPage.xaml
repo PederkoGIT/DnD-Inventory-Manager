@@ -41,6 +41,8 @@
                            TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
                     
                     <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="{Binding Item.Category, StringFormat='{0} 🏷️'}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
+                        <Label Text="•" TextColor="{StaticResource Gray400}" />
                         <Label Text="{Binding Item.Weight, StringFormat='{0} lb'}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />
                         <Label Text="•" TextColor="{StaticResource Gray400}" />
                         <Label Text="{Binding Item.Quantity, StringFormat='Amount: {0}'}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Gray500}" />

@@ -18,20 +18,4 @@ public partial class ItemFromApiPage : ContentPage
             await viewModel.LoadPage();
         }
     }
-
-    private void OnSearchedItemChanged(object? sender, TextChangedEventArgs e)
-    {
-        if (BindingContext is ItemFromApiVIewModel viewModel)
-        {
-            viewModel.OnSearchedItemChanged();
-        }
-    }
-
-    private void Picker_OnSelectedIndexChanged(object? sender, EventArgs e)
-    {
-        if (BindingContext is ItemFromApiVIewModel viewModel)
-        {
-            viewModel.OnSearchedItemChanged();
-        }
-    }
 }

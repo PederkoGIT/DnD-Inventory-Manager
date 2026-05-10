@@ -74,13 +74,22 @@
                             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundLight}, Dark={StaticResource BackgroundDark}}"
                             StrokeThickness="1" HeightRequest="45" Padding="12,0">
                         <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
-                        <Grid ColumnDefinitions="Auto, *">
+                        <Grid ColumnDefinitions="Auto, 2*, Auto, *">
                             <Label Grid.Column="0" Text="🔍" FontSize="14" VerticalOptions="Center" Margin="0,0,8,0" Opacity="0.5"/>
                             <Entry Grid.Column="1" Text="{Binding SearchQuery}" Placeholder="Search loot..." 
                                    ClearButtonVisibility="WhileEditing" BackgroundColor="Transparent" 
                                    TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" 
                                    PlaceholderColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" 
                                    FontSize="14"/>
+                            
+                            <Label Grid.Column="2" Text="🏷️" FontSize="14" VerticalOptions="Center" Margin="0,0,8,0"/>
+                            <Picker Grid.Column="3"
+                                    Title="Filter By Category" 
+                                    ItemsSource="{Binding AllCategories}"
+                                    SelectedItem="{Binding CategoryFilter}"
+                                    BackgroundColor="Transparent" 
+                                    TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" 
+                                    FontSize="14"/>
                         </Grid>
                     </Border>
                 </VerticalStackLayout>
@@ -120,7 +129,7 @@
                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CharacterDetailViewModel}}, Path=GoToItemDetailCommand}" CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
 
-                            <Grid RowDefinitions="Auto, *, Auto">
+                            <Grid RowDefinitions="Auto, *, Auto, Auto">
                                 
                                 <Grid Grid.Row="0" ColumnDefinitions="*, Auto" VerticalOptions="Start">
                                     <Label Grid.Column="0" Text="{Binding TotalWeight, StringFormat='{0} lb'}" 
@@ -141,6 +150,13 @@
 
                                 <Label Grid.Row="2" Text="{Binding Name}" 
                                        FontAttributes="Bold" FontSize="14" 
+                                       HorizontalTextAlignment="Center" 
+                                       LineBreakMode="TailTruncation" MaxLines="2" 
+                                       TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" 
+                                       VerticalOptions="End" />
+                                
+                                <Label Grid.Row="3" Text="{Binding Category}" 
+                                       FontAttributes="Italic" FontSize="12" 
                                        HorizontalTextAlignment="Center" 
                                        LineBreakMode="TailTruncation" MaxLines="2" 
                                        TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" 

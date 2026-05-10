@@ -40,8 +40,18 @@ public partial class ItemFromApiVIewModel(
         _allMagicItemsApiList = await itemFacade.GetAllMagicItemsAsync();
         EquipmentApiList = _allEquipmentApiList.ToList();
     }
-    
-    public void OnSearchedItemChanged()
+
+    partial void OnSearchedItemChanged(string value)
+    {
+        FilterItems();
+    }
+
+    partial void OnItemCategoryChanged(ItemCategoriesEnum value)
+    {
+        FilterItems();
+    }
+
+    private void FilterItems()
     {
 
         EquipmentApiList = ItemCategory switch

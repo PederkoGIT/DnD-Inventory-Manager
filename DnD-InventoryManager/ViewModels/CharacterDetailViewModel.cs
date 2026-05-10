@@ -15,20 +15,22 @@ public partial class CharacterDetailViewModel(
     NfcService nfcService
 ) : ViewModelBase
 {
+    private const string NoFilter = "No Filter";
+    
+    private ICollection<ItemModel> _allItems = [];
+
     [ObservableProperty]
     public partial CharacterModel? Character { get; set; }
-
     [ObservableProperty]
     public partial bool IsWaitingForNfc { get; set; }
-
     [ObservableProperty]
     public partial ObservableCollection<ItemModel> Items { get; set; } = [];
-    
-    private List<ItemModel> _allItems = [];
-    
     [ObservableProperty]
     public partial string SearchQuery { get; set; } = string.Empty;
-    
+    [ObservableProperty] 
+    public partial IList<string> AllCategories { get; set; } = [];
+    [ObservableProperty] 
+    public partial string CategoryFilter { get; set; } = NoFilter;
     [ObservableProperty]
     public partial double CurrentLoad { get; set; }
     [ObservableProperty]
@@ -49,9 +51,10 @@ public partial class CharacterDetailViewModel(
             Character = updatedCharacter;
             Title = Character.Name;
             
-            var items = await itemFacade.GetAllByCharacterIdAsync(updatedCharacter.Id);
-            _allItems = items.ToList();
+            _allItems = await itemFacade.GetAllByCharacterIdAsync(updatedCharacter.Id);
+            AllCategories = [NoFilter, .. _allItems.Select(i => i.Category).Distinct().ToList()];
             
+
             CurrentLoad = _allItems.Sum(i => i.Weight * i.Quantity);
             CurrentLoadPercentage = Character.CarryingCapacity > 0 ? CurrentLoad / Character.CarryingCapacity : 0;
             
@@ -72,17 +75,30 @@ public partial class CharacterDetailViewModel(
         FilterItems();
     }
 
+    partial void OnCategoryFilterChanged(string value)
+    {
+        FilterItems();
+    }
+    
     private void FilterItems()
     {
-        if (string.IsNullOrEmpty(SearchQuery))
+        IEnumerable<ItemModel> filtered;
+
+        if (string.IsNullOrWhiteSpace(CategoryFilter) || CategoryFilter.Equals(NoFilter))
         {
-            Items = new ObservableCollection<ItemModel>(_allItems);
+            filtered = _allItems;
         }
         else
         {
-            var filtered = _allItems.Where(i => i.Name.ToLower().Contains(SearchQuery.ToLower()));
-            Items = new ObservableCollection<ItemModel>(filtered);
+            filtered = _allItems.Where(i => i.Category.Equals(CategoryFilter, StringComparison.CurrentCultureIgnoreCase));
         }
+
+        if (!string.IsNullOrEmpty(SearchQuery))
+        {
+            filtered = filtered.Where(i => i.Name.Contains(SearchQuery, StringComparison.CurrentCultureIgnoreCase));
+        }
+
+        Items = new ObservableCollection<ItemModel>(filtered);
     }
 
     [RelayCommand]
@@ -136,6 +152,18 @@ public partial class CharacterDetailViewModel(
                     {
                         IsWaitingForNfc = false;
 
+                        var allCategories = await itemFacade.GetAllCategories();
+                        var selectedCategory = await Shell.Current.DisplayActionSheetAsync(
+                            $"Choose category for the new item {recievedItem.Name}?", 
+                            "Cancel", 
+                            null, 
+                            allCategories.ToArray()
+                        );
+                        if (string.IsNullOrEmpty(selectedCategory) || selectedCategory.Equals("Cancel"))
+                        {
+                            selectedCategory = nameof(ItemCategoriesEnum.Equipment);
+                        }
+                        recievedItem.Category = selectedCategory;
                         recievedItem.CharacterId = Character.Id;
 
                         await itemFacade.SaveAsync(recievedItem);
@@ -145,7 +173,7 @@ public partial class CharacterDetailViewModel(
                         
                         CurrentLoad += (recievedItem.Weight * recievedItem.Quantity);
                         CurrentLoadPercentage = Character.CarryingCapacity > 0 ? CurrentLoad / Character.CarryingCapacity : 0;
-
+                        
                         await Shell.Current.DisplayAlertAsync("Loot acquired!",
                             $"{recievedItem.Name} added to inventory.", "OK");
                     }
