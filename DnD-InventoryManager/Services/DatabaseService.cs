@@ -78,4 +78,24 @@ public class DatabaseService
         await connection.CloseAsync();
         return categories;
     }
+
+
+    public async Task ReassignCategoryAsync(string oldCategory, string newCategory)
+    {
+        var connection = new SQLiteAsyncConnection(_dbPath);
+
+        var itemsToUpdate = await connection.Table<ItemEntity>().Where(i => i.Category.Equals(oldCategory)).ToListAsync();
+
+        if (itemsToUpdate.Any())
+        {
+            foreach (var item in itemsToUpdate)
+            {
+                item.Category = newCategory;
+            }
+
+            await connection.UpdateAllAsync(itemsToUpdate);
+        }
+        
+        await connection.CloseAsync();
+    }
 }

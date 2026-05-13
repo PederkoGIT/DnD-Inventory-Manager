@@ -13,15 +13,19 @@ public partial class ItemEditViewModel(
 {
     
     private static readonly string[] DefaultItemImages = ["armor.png", "sword.png", "potion.png"];
+    private readonly List<string> _pendingCategoryDeletions = [];
     
     [ObservableProperty] public partial ItemModel ItemModel { get; set; } = new() ;
     [ObservableProperty] public partial double NewWeight { get; set; }
     [ObservableProperty] public partial int NewQuantity { get; set; } = 1;
-    [ObservableProperty] public partial string NewCategory { get; set; } = string.Empty;
     [ObservableProperty] public partial string? PickerCategory { get; set; } = string.Empty;
     [ObservableProperty] public partial List<string> AllCategories { get; set; } = [];
     [ObservableProperty] public partial string SelectedImagePath { get; set; } = string.Empty;
 
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(CanDeleteCategory))]
+    public partial string NewCategory { get; set; } = string.Empty;
+    
     public async Task LoadDataAsync()
     {
         var defaultCategories = Enum.GetValues<ItemCategoriesEnum>().Select(e => e.ToString());
@@ -87,6 +91,12 @@ public partial class ItemEditViewModel(
             MainThread.BeginInvokeOnMainThread(() => PickerCategory = null);
         }
     }
+
+    public bool CanDeleteCategory =>
+        !string.IsNullOrEmpty(NewCategory) &&
+        NewCategory != nameof(ItemCategoriesEnum.Equipment) &&
+        NewCategory != "MagicItem" &&
+        NewCategory != "Uncategorized";
     
     [RelayCommand]
     private async Task PickImageAsync()
@@ -116,6 +126,12 @@ public partial class ItemEditViewModel(
     [RelayCommand]
     private async Task SaveAsync()
     {
+        foreach (var categoryToDelete in _pendingCategoryDeletions)
+        {
+            await itemFacade.DeleteCategoryAndReassignAsync(categoryToDelete, "Uncategorized");
+        }
+        _pendingCategoryDeletions.Clear();
+        
         ItemModel.Weight = NewWeight;
         ItemModel.Quantity = NewQuantity;
         ItemModel.Category = NewCategory;
@@ -132,5 +148,63 @@ public partial class ItemEditViewModel(
         {
             {"Item", ItemModel}
         });
+    }
+
+    [RelayCommand]
+    private async Task SelectCategoryAsync()
+    {
+        var displayCategories = AllCategories.ToList();
+        if (!displayCategories.Contains("Uncategorized"))
+        {
+            displayCategories.Add("Uncategorized");
+        }
+        
+        var action = await Shell.Current.DisplayActionSheetAsync("Select Category", "Cancel", null, displayCategories.ToArray());
+
+        if (!string.IsNullOrEmpty(action) && action != "Cancel")
+        {
+            NewCategory = action;
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddCategoryAsync()
+    {
+        var newCategoryName = await Shell.Current.DisplayPromptAsync("New Category", "Enter the name of the new category:", "Save", "Cancel");
+
+        if (!string.IsNullOrEmpty(newCategoryName) && !AllCategories.Contains(newCategoryName))
+        {
+            AllCategories.Add(newCategoryName.Trim());
+            
+            OnPropertyChanged(nameof(AllCategories));
+            
+            NewCategory = newCategoryName.Trim();
+        }
+    }
+    
+    [RelayCommand]
+    private async Task DeleteCategoryAsync()
+    {
+        if (!CanDeleteCategory) return;
+
+        var categoryToDelete = NewCategory;
+    
+        var confirm = await Shell.Current.DisplayAlertAsync(
+            "Delete Category", 
+            $"Are you sure you want to mark '{categoryToDelete}' for deletion? All items in this category will be moved to 'Uncategorized' when you save.", 
+            "Mark for Deletion", "Cancel");
+
+        if (confirm)
+        {
+            if (!_pendingCategoryDeletions.Contains(categoryToDelete))
+            {
+                _pendingCategoryDeletions.Add(categoryToDelete);
+            }
+
+            AllCategories.Remove(categoryToDelete);
+            OnPropertyChanged(nameof(AllCategories));
+
+            NewCategory = "Uncategorized";
+        }
     }
 }

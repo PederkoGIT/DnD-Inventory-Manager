@@ -71,4 +71,9 @@ public class ItemFacade(
         var resp = await _dndApi.GetAllMagicItems();
         return resp.Results;
     }
+
+    public async Task DeleteCategoryAndReassignAsync(string categoryToDelete, string fallbackCategory)
+    {
+        await databaseService.ReassignCategoryAsync(categoryToDelete, fallbackCategory);
+    }
 }

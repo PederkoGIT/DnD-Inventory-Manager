@@ -46,17 +46,32 @@
 
                     <VerticalStackLayout Spacing="6">
                         <Label Text="CATEGORY" FontSize="11" FontAttributes="Bold" CharacterSpacing="1" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
-                        <Border Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" BackgroundColor="Transparent" Padding="12,0">
-                            <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                        
+                        <Grid ColumnDefinitions="*, 45, 45" ColumnSpacing="10">
                             
-                            <Grid ColumnDefinitions="*, 45">
-                                <Entry Grid.Column="0" Placeholder="e.g. Consumables..." Text="{Binding NewCategory}" FontSize="16" TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" />
-                                
-                                <Picker Grid.Column="1" Title="▼" ItemsSource="{Binding AllCategories}" SelectedItem="{Binding PickerCategory}" 
-                                        TextColor="{StaticResource Primary}" BackgroundColor="Transparent" TitleColor="{StaticResource Primary}" 
-                                        FontAttributes="Bold" HorizontalTextAlignment="Center" />
-                            </Grid>
-                        </Border>
+                            <!-- Výber kategórie (Kliknutie otvorí ActionSheet) -->
+                            <Border Grid.Column="0" Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" BackgroundColor="Transparent" Padding="15,0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCategoryCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding NewCategory}" VerticalOptions="Center" FontSize="16" TextColor="{AppThemeBinding Light={StaticResource TextLight}, Dark={StaticResource TextDark}}" />
+                            </Border>
+                            
+                            <!-- Pridať kategóriu (+) -->
+                            <Border Grid.Column="1" Stroke="{StaticResource Primary}" StrokeThickness="1" BackgroundColor="Transparent" Padding="0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                <Button Text="+" Command="{Binding AddCategoryCommand}" BackgroundColor="Transparent" TextColor="{StaticResource Primary}" FontSize="22" FontAttributes="Bold" Padding="0" Margin="0"/>
+                            </Border>
+
+                            <!-- Zmazať kategóriu (✕) - Zobrazí sa len ak sa dá zmazať -->
+                            <Border Grid.Column="2" Stroke="{StaticResource Primary}" StrokeThickness="1" BackgroundColor="Transparent" Padding="0" IsVisible="{Binding CanDeleteCategory}">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                <Button Text="✕" Command="{Binding DeleteCategoryCommand}" BackgroundColor="Transparent" TextColor="{StaticResource Primary}" FontSize="18" FontAttributes="Bold" Padding="0" Margin="0"/>
+                                <!-- Poznámka: Text "✕" môžeš neskôr nahradiť za <Image Source="ic_trash.png" />, ak by si chcel použiť ikony -->
+                            </Border>
+
+                        </Grid>
                     </VerticalStackLayout>
                     
                     <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
