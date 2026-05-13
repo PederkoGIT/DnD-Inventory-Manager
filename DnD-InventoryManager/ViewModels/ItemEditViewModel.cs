@@ -104,7 +104,7 @@ public partial class ItemEditViewModel(
             
             if (photo != null)
             {
-                ItemModel.ImagePath = photo.FullPath;
+                SelectedImagePath = photo.FullPath;
             }
         }
         catch (Exception ex)
