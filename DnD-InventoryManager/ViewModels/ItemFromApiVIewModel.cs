@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnD_InventoryManager.Api;
 using DnD_InventoryManager.Facades;
@@ -19,7 +20,7 @@ public partial class ItemFromApiVIewModel(
     private List<ItemListApiModel> _allMagicItemsApiList = []; 
     
     [ObservableProperty]
-    public partial ICollection<ItemListApiModel> EquipmentApiList { get; set; } = [];
+    public partial ObservableCollection<ItemListApiModel> EquipmentApiList { get; set; } = [];
     
     [ObservableProperty] 
     public partial string SearchedItem { get; set; } = string.Empty;
@@ -28,17 +29,21 @@ public partial class ItemFromApiVIewModel(
     public partial ItemModel Item { get; set; } = new();
 
     [ObservableProperty] 
-    public partial ItemListApiModel SelectedItem { get; set; } = new();
+    public partial ItemListApiModel? SelectedItem { get; set; }
     
     [ObservableProperty]
     public partial ItemCategoriesEnum ItemCategory { get; set; }
 
     public async Task LoadPage()
     {
+        IsBusy = true;
         _characterId = Item.CharacterId;
+        
         _allEquipmentApiList = await itemFacade.GetAllEquipmentApiAsync();
         _allMagicItemsApiList = await itemFacade.GetAllMagicItemsAsync();
-        EquipmentApiList = _allEquipmentApiList.ToList();
+        
+        FilterItems();
+        IsBusy = false;
     }
 
     partial void OnSearchedItemChanged(string value)
@@ -53,24 +58,30 @@ public partial class ItemFromApiVIewModel(
 
     private void FilterItems()
     {
-
-        EquipmentApiList = ItemCategory switch
+        var baseList = ItemCategory switch
         {
-            ItemCategoriesEnum.Equipment => _allEquipmentApiList.ToList(),
-            ItemCategoriesEnum.MagicItem => _allMagicItemsApiList.ToList(),
+            ItemCategoriesEnum.Equipment => _allEquipmentApiList,
+            ItemCategoriesEnum.MagicItem => _allMagicItemsApiList,
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        if (!SearchedItem.Equals(string.Empty))
+        if (!string.IsNullOrWhiteSpace(SearchedItem))
         {
-            EquipmentApiList = EquipmentApiList.Where(i => i.Name.Contains(SearchedItem, StringComparison.CurrentCultureIgnoreCase)).ToList();
+            var filtered = baseList.Where(i => i.Name.Contains(SearchedItem, StringComparison.OrdinalIgnoreCase));
+            EquipmentApiList = new ObservableCollection<ItemListApiModel>(filtered);
         }
-    
+        else
+        {
+            EquipmentApiList = new ObservableCollection<ItemListApiModel>(baseList);
+        }
     }
     
     [RelayCommand]
     private async Task GetItemFromApiAsync()
     {
+        if (SelectedItem == null) return;
+
+        IsBusy = true;
         try
         {
             Item = ItemCategory switch
@@ -79,18 +90,23 @@ public partial class ItemFromApiVIewModel(
                 ItemCategoriesEnum.MagicItem => await itemFacade.GetFromMagicItemApi(SelectedItem.Index),
                 _ => throw new ArgumentOutOfRangeException()
             };
+            
+            Item.CharacterId = _characterId;
+            Item.Category = ItemCategory.ToString();
+            
+            await Shell.Current.GoToAsync("..", new Dictionary<string, object>()
+            {
+                {"Item", Item}
+            });
         }
         catch (ApiException e)
         {
             Console.WriteLine(e);
-            await Shell.Current.DisplayAlertAsync("Error", e.Message, "OK");
+            await Shell.Current.DisplayAlertAsync("API Error", e.Message, "OK");
         }
-        
-        Item.CharacterId = _characterId;
-        
-        await Shell.Current.GoToAsync("..", new Dictionary<string, object>()
+        finally
         {
-            {"Item", Item}
-        });
+            IsBusy = false;
+        }
     }
 }
