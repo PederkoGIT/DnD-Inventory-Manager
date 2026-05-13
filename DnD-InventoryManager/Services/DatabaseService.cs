@@ -98,4 +98,25 @@ public class DatabaseService
         
         await connection.CloseAsync();
     }
+    
+    public async Task RenameCategoryAsync(string oldCategory, string newCategory)
+    {
+        var connection = new SQLiteAsyncConnection(_dbPath);
+    
+        var itemsToUpdate = await connection.Table<ItemEntity>()
+            .Where(e => e.Category == oldCategory)
+            .ToListAsync();
+
+        if (itemsToUpdate.Any())
+        {
+            foreach (var item in itemsToUpdate)
+            {
+                item.Category = newCategory;
+            }
+        
+            await connection.UpdateAllAsync(itemsToUpdate);
+        }
+    
+        await connection.CloseAsync();
+    }
 }

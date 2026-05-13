@@ -76,4 +76,9 @@ public class ItemFacade(
     {
         await databaseService.ReassignCategoryAsync(categoryToDelete, fallbackCategory);
     }
+
+    public async Task RenameCategoryAsync(string oldCategory, string newCategory)
+    {
+        await databaseService.RenameCategoryAsync(oldCategory, newCategory);
+    }
 }

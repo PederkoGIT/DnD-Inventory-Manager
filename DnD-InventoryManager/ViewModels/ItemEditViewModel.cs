@@ -14,6 +14,8 @@ public partial class ItemEditViewModel(
     
     private static readonly string[] DefaultItemImages = ["armor.png", "sword.png", "potion.png"];
     private readonly List<string> _pendingCategoryDeletions = [];
+    private readonly Dictionary<string, string> _pendingCategoryRenames = [];
+    
     
     [ObservableProperty] public partial ItemModel ItemModel { get; set; } = new() ;
     [ObservableProperty] public partial double NewWeight { get; set; }
@@ -21,17 +23,38 @@ public partial class ItemEditViewModel(
     [ObservableProperty] public partial string? PickerCategory { get; set; } = string.Empty;
     [ObservableProperty] public partial List<string> AllCategories { get; set; } = [];
     [ObservableProperty] public partial string SelectedImagePath { get; set; } = string.Empty;
+    [ObservableProperty] public partial bool IsCategoryMenuVisible { get; set; } = false;
 
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(CanDeleteCategory))]
     public partial string NewCategory { get; set; } = string.Empty;
+    
+    
+    [ObservableProperty] public partial bool IsPromptVisible { get; set; }
+    [ObservableProperty] public partial string PromptTitle { get; set; } = string.Empty;
+    [ObservableProperty] public partial string PromptMessage { get; set; } = string.Empty;
+    [ObservableProperty] public partial string PromptInputText { get; set; } = string.Empty;
+    [ObservableProperty] public partial string PromptConfirmText { get; set; } = "Save";
+    private TaskCompletionSource<string?>? _promptTcs;
+
+    [ObservableProperty] public partial bool IsAlertVisible { get; set; }
+    [ObservableProperty] public partial string AlertTitle { get; set; } = string.Empty;
+    [ObservableProperty] public partial string AlertMessage { get; set; } = string.Empty;
+    [ObservableProperty] public partial string AlertConfirmText { get; set; } = "OK";
+    private TaskCompletionSource<bool>? _alertTcs;
+
+    [ObservableProperty] public partial bool IsSelectCategoryVisible { get; set; }
+    [ObservableProperty] public partial List<string> DisplayCategories { get; set; } = [];
+    private TaskCompletionSource<string?>? _actionSheetTcs;
     
     public async Task LoadDataAsync()
     {
         var defaultCategories = Enum.GetValues<ItemCategoriesEnum>().Select(e => e.ToString());
         var dbCategories = await itemFacade.GetAllCategories();
     
-        AllCategories = defaultCategories.Union(dbCategories).ToList();
+        AllCategories = defaultCategories.Union(dbCategories)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .ToList();
 
         var itemFromDb = await itemFacade.GetByIdAsync(ItemModel.Id);
     
@@ -126,11 +149,19 @@ public partial class ItemEditViewModel(
     [RelayCommand]
     private async Task SaveAsync()
     {
+
+        foreach (var rename in _pendingCategoryRenames)
+        {
+            await itemFacade.RenameCategoryAsync(rename.Key, rename.Value);
+        }
+        
         foreach (var categoryToDelete in _pendingCategoryDeletions)
         {
             await itemFacade.DeleteCategoryAndReassignAsync(categoryToDelete, "Uncategorized");
         }
+        
         _pendingCategoryDeletions.Clear();
+        _pendingCategoryRenames.Clear();
         
         ItemModel.Weight = NewWeight;
         ItemModel.Quantity = NewQuantity;
@@ -153,15 +184,17 @@ public partial class ItemEditViewModel(
     [RelayCommand]
     private async Task SelectCategoryAsync()
     {
-        var displayCategories = AllCategories.ToList();
-        if (!displayCategories.Contains("Uncategorized"))
-        {
-            displayCategories.Add("Uncategorized");
-        }
+        var categoriesToDisplay = AllCategories.ToList();
+        if (!categoriesToDisplay.Contains("Uncategorized"))
+            categoriesToDisplay.Add("Uncategorized");
+            
+        DisplayCategories = categoriesToDisplay;
         
-        var action = await Shell.Current.DisplayActionSheetAsync("Select Category", "Cancel", null, displayCategories.ToArray());
+        IsSelectCategoryVisible = true;
+        _actionSheetTcs = new TaskCompletionSource<string?>();
+        var action = await _actionSheetTcs.Task;
 
-        if (!string.IsNullOrEmpty(action) && action != "Cancel")
+        if (!string.IsNullOrEmpty(action))
         {
             NewCategory = action;
         }
@@ -170,14 +203,14 @@ public partial class ItemEditViewModel(
     [RelayCommand]
     private async Task AddCategoryAsync()
     {
-        var newCategoryName = await Shell.Current.DisplayPromptAsync("New Category", "Enter the name of the new category:", "Save", "Cancel");
+        IsCategoryMenuVisible = false;
+        
+        var newCategoryName = await ShowCustomPromptAsync("New Category", "Enter the name of the new category:", "Save");
 
-        if (!string.IsNullOrEmpty(newCategoryName) && !AllCategories.Contains(newCategoryName))
+        if (!string.IsNullOrWhiteSpace(newCategoryName) && !AllCategories.Contains(newCategoryName))
         {
             AllCategories.Add(newCategoryName.Trim());
-            
             OnPropertyChanged(nameof(AllCategories));
-            
             NewCategory = newCategoryName.Trim();
         }
     }
@@ -187,24 +220,81 @@ public partial class ItemEditViewModel(
     {
         if (!CanDeleteCategory) return;
 
+        IsCategoryMenuVisible = false;
         var categoryToDelete = NewCategory;
     
-        var confirm = await Shell.Current.DisplayAlertAsync(
-            "Delete Category", 
+        var confirm = await ShowCustomAlertAsync("Delete Category", 
             $"Are you sure you want to mark '{categoryToDelete}' for deletion? All items in this category will be moved to 'Uncategorized' when you save.", 
-            "Mark for Deletion", "Cancel");
+            "Mark for Deletion");
 
         if (confirm)
         {
             if (!_pendingCategoryDeletions.Contains(categoryToDelete))
-            {
                 _pendingCategoryDeletions.Add(categoryToDelete);
-            }
 
             AllCategories.Remove(categoryToDelete);
             OnPropertyChanged(nameof(AllCategories));
-
             NewCategory = "Uncategorized";
         }
     }
+
+    [RelayCommand]
+    private void OpenCategoryMenu() => IsCategoryMenuVisible = true;
+    
+    [RelayCommand]
+    private void CloseCategoryMenu() => IsCategoryMenuVisible = false;
+
+    [RelayCommand]
+    private async Task RenameCategoryAsync()
+    {
+        IsCategoryMenuVisible = false;
+        
+        var newName = await ShowCustomPromptAsync("Rename Category", $"Rename '{NewCategory}' to:", "Rename", NewCategory);
+
+        if (!string.IsNullOrWhiteSpace(newName) && newName.Trim() != NewCategory)
+        {
+            var cleanName = newName.Trim();
+            var oldName = NewCategory;
+
+            _pendingCategoryRenames[oldName] = cleanName;
+
+            AllCategories.Remove(oldName);
+            AllCategories.Add(cleanName);
+            OnPropertyChanged(nameof(AllCategories));
+
+            NewCategory = cleanName;
+        }
+    }
+    
+    private async Task<string?> ShowCustomPromptAsync(string title, string message, string confirmText, string initialValue = "")
+    {
+        PromptTitle = title;
+        PromptMessage = message;
+        PromptConfirmText = confirmText;
+        PromptInputText = initialValue;
+        IsPromptVisible = true;
+        
+        _promptTcs = new TaskCompletionSource<string?>();
+        return await _promptTcs.Task;
+    }
+
+    [RelayCommand] private void ConfirmPrompt() { IsPromptVisible = false; _promptTcs?.TrySetResult(PromptInputText); }
+    [RelayCommand] private void CancelPrompt() { IsPromptVisible = false; _promptTcs?.TrySetResult(null); }
+
+    private async Task<bool> ShowCustomAlertAsync(string title, string message, string confirmText)
+    {
+        AlertTitle = title;
+        AlertMessage = message;
+        AlertConfirmText = confirmText;
+        IsAlertVisible = true;
+        
+        _alertTcs = new TaskCompletionSource<bool>();
+        return await _alertTcs.Task;
+    }
+
+    [RelayCommand] private void ConfirmAlert() { IsAlertVisible = false; _alertTcs?.TrySetResult(true); }
+    [RelayCommand] private void CancelAlert() { IsAlertVisible = false; _alertTcs?.TrySetResult(false); }
+
+    [RelayCommand] private void PickCategoryOption(string option) { IsSelectCategoryVisible = false; _actionSheetTcs?.TrySetResult(option); }
+    [RelayCommand] private void CancelCategorySheet() { IsSelectCategoryVisible = false; _actionSheetTcs?.TrySetResult(null); }
 }
