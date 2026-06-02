@@ -43,13 +43,6 @@ public partial class MainViewModel : ViewModelBase
         _itemFacade =  itemFacade;
         _nfcService = nfcService;
         Title = "My Characters";
-        
-        LoadSamples();
-    }
-
-    private void LoadSamples()
-    {
-        Characters.Add(new CharacterModel() { Name = "Johb", Strength = 18, Size = CharacterSizeEnum.Medium});
     }
 
     [RelayCommand]

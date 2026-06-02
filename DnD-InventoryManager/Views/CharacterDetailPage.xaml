@@ -9,8 +9,15 @@
              Title="{Binding Title}">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Edit" Command="{Binding GoToEditCharacterCommand}" Priority="0" />
-        <ToolbarItem Text="Delete" Command="{Binding DeleteCharacterCommand}" Priority="1" />
+        <ToolbarItem Text="Edit" 
+                     IconImageSource="edit.png" 
+                     Command="{Binding GoToEditCharacterCommand}" 
+                     Priority="0" />
+                 
+        <ToolbarItem Text="Delete" 
+                     IconImageSource="delete.png" 
+                     Command="{Binding DeleteCharacterCommand}" 
+                     Priority="1" />
     </ContentPage.ToolbarItems>
 
     <Grid>
