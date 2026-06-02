@@ -36,6 +36,16 @@ public partial class CharacterDetailViewModel(
     [ObservableProperty]
     public partial double CurrentLoadPercentage { get; set; }
     
+    [ObservableProperty] public partial bool IsItemPreviewVisible { get; set; }
+    [ObservableProperty] public partial ItemModel? PreviewItem { get; set; }
+    [ObservableProperty] public partial string PreviewSelectedImage { get; set; } = string.Empty;
+    [ObservableProperty] public partial ObservableCollection<TemplateImageItem> PreviewTemplateImages { get; set; } = [];
+    private TaskCompletionSource<bool>? _previewTcs;
+
+    [ObservableProperty] public partial bool IsPreviewCategorySelectVisible { get; set; }
+    [ObservableProperty] public partial string PreviewSelectedCategory { get; set; } = string.Empty;
+    [ObservableProperty] public partial List<string> PreviewAvailableCategories { get; set; } = [];
+    
     public async Task RefreshCharacterAsync()
     {
         if (Character == null || Character.Id == 0)
@@ -152,30 +162,25 @@ public partial class CharacterDetailViewModel(
                     {
                         IsWaitingForNfc = false;
 
-                        var allCategories = await itemFacade.GetAllCategories();
-                        var selectedCategory = await Shell.Current.DisplayActionSheetAsync(
-                            $"Choose category for the new item {recievedItem.Name}?", 
-                            "Cancel", 
-                            null, 
-                            allCategories.ToArray()
-                        );
-                        if (string.IsNullOrEmpty(selectedCategory) || selectedCategory.Equals("Cancel"))
-                        {
-                            selectedCategory = nameof(ItemCategoriesEnum.Equipment);
-                        }
-                        recievedItem.Category = selectedCategory;
-                        recievedItem.CharacterId = Character.Id;
+                        var confirm = await ShowItemPreviewAsync(recievedItem);
 
-                        await itemFacade.SaveAsync(recievedItem);
-                        
-                        _allItems.Add(recievedItem);
-                        FilterItems();
-                        
-                        CurrentLoad += (recievedItem.Weight * recievedItem.Quantity);
-                        CurrentLoadPercentage = Character.CarryingCapacity > 0 ? CurrentLoad / Character.CarryingCapacity : 0;
-                        
-                        await Shell.Current.DisplayAlertAsync("Loot acquired!",
-                            $"{recievedItem.Name} added to inventory.", "OK");
+                        if (confirm)
+                        {
+                            recievedItem.Category = PreviewSelectedCategory;
+                            recievedItem.CharacterId = Character.Id;
+                            recievedItem.ImagePath = PreviewSelectedImage;
+
+                            await itemFacade.SaveAsync(recievedItem);
+                            
+                            _allItems.Add(recievedItem);
+                            FilterItems();
+                            
+                            CurrentLoad += (recievedItem.Weight * recievedItem.Quantity);
+                            CurrentLoadPercentage = Character.CarryingCapacity > 0 ? CurrentLoad / Character.CarryingCapacity : 0;
+                            
+                            await Shell.Current.DisplayAlertAsync("Loot acquired!",
+                                $"{recievedItem.Name} added to inventory.", "OK");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -239,6 +244,62 @@ public partial class CharacterDetailViewModel(
         });
     }
 
-    
+    private async Task<bool> ShowItemPreviewAsync(ItemModel item)
+    {
+        if (Character == null) return false;
+
+        PreviewItem = item;
+        
+        var defaultCategories = Enum.GetValues<ItemCategoriesEnum>().Select(e => e.ToString());
+        var dbCategories = await itemFacade.GetCategoriesForCharacterAsync(Character.Id);
+        PreviewAvailableCategories = defaultCategories
+            .Union(dbCategories)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .ToList();
+            
+        PreviewSelectedCategory = string.IsNullOrWhiteSpace(item.Category) ? "Uncategorized" : item.Category;
+        
+        var defaultImgs = new[] { "armor.png", "sword.png", "potion.png" };
+        var isCustomImage = !string.IsNullOrEmpty(item.ImagePath) && item.ImagePath.StartsWith("http");
+        PreviewSelectedImage = isCustomImage ? item.ImagePath : defaultImgs[0];
+        
+        PreviewTemplateImages.Clear();
+        foreach (var img in defaultImgs)
+        {
+            PreviewTemplateImages.Add(new TemplateImageItem 
+            { 
+                ImagePath = img, 
+                IsSelected = !isCustomImage && img == PreviewSelectedImage 
+            });
+        }
+            
+        IsItemPreviewVisible = true;
+        _previewTcs = new TaskCompletionSource<bool>();
+        return await _previewTcs.Task;
+    }
+
+    [RelayCommand] private void ConfirmItemPreview() { IsItemPreviewVisible = false; _previewTcs?.TrySetResult(true); }
+    [RelayCommand] private void CancelItemPreview() { IsItemPreviewVisible = false; _previewTcs?.TrySetResult(false); }
+
+    [RelayCommand] private void OpenPreviewCategorySelect() => IsPreviewCategorySelectVisible = true;
+    [RelayCommand] private void ClosePreviewCategorySelect() => IsPreviewCategorySelectVisible = false;
+
+    [RelayCommand] 
+    private void SelectPreviewCategory(string category) 
+    { 
+        PreviewSelectedCategory = category; 
+        IsPreviewCategorySelectVisible = false; 
+    }
+
+    [RelayCommand] 
+    private void SelectTemplateImage(TemplateImageItem selected)
+    {
+        foreach (var img in PreviewTemplateImages)
+        {
+            img.IsSelected = false;
+        }
+        selected.IsSelected = true;
+        PreviewSelectedImage = selected.ImagePath;
+    }
     
 }

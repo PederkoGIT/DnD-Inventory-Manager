@@ -105,17 +105,35 @@ public class NfcService
 
         try
         {
-            var dto = new NfcItemModelDto
-            {
-                Name = _itemModelToWrite.Name,
-                Description = _itemModelToWrite.Description,
-                Weight = _itemModelToWrite.Weight,
-                Quantity = _itemModelToWrite.Quantity
-            };
-            var json = JsonSerializer.Serialize(dto);
+            const int maxPayloadSize = 830;
             
-            var compressedPayload = BrotliHelper.CompressToBrotli(json);
+            var currentDescription = _itemModelToWrite.Description;
+            byte[] compressedPayload = [];
 
+            while (true)
+            {
+                var dto = new NfcItemModelDto
+                {
+                    Name = _itemModelToWrite.Name,
+                    Description = currentDescription,
+                    Weight = _itemModelToWrite.Weight,
+                    Quantity = _itemModelToWrite.Quantity
+                };
+                
+                var json = JsonSerializer.Serialize(dto);
+                compressedPayload = BrotliHelper.CompressToBrotli(json);
+
+                if (compressedPayload.Length <= maxPayloadSize)
+                {
+                    break; 
+                }
+
+                if (currentDescription.Length > 55)
+                {
+                    currentDescription = currentDescription.Substring(0, currentDescription.Length - 55) + "...";
+                }
+            }
+            
             var record = new NFCNdefRecord
             {
                 TypeFormat = NFCNdefTypeFormat.Mime,
