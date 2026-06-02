@@ -8,6 +8,12 @@ using DnD_InventoryManager.Views;
 
 namespace DnD_InventoryManager.ViewModels;
 
+public partial class TemplateImageItem : ObservableObject
+{
+    [ObservableProperty] public partial string ImagePath { get; set; } = string.Empty;
+    [ObservableProperty] public partial bool IsSelected { get; set; }
+}
+
 public partial class MainViewModel : ViewModelBase
 {
     private readonly CharacterFacade _characterFacade;
@@ -18,6 +24,18 @@ public partial class MainViewModel : ViewModelBase
     
     [ObservableProperty]
     public partial bool IsWaitingForNfc { get; set; }
+    
+    [ObservableProperty] public partial bool IsItemPreviewVisible { get; set; }
+    [ObservableProperty] public partial ItemModel? PreviewItem { get; set; }
+    [ObservableProperty] public partial CharacterModel? PreviewSelectedCharacter { get; set; }
+    [ObservableProperty] public partial string PreviewSelectedImage { get; set; } = string.Empty;
+    [ObservableProperty] public partial ObservableCollection<TemplateImageItem> PreviewTemplateImages { get; set; } = [];
+    private TaskCompletionSource<bool>? _previewTcs;
+
+    [ObservableProperty] public partial bool IsCharacterSelectVisible { get; set; }
+    [ObservableProperty] public partial bool IsPreviewCategorySelectVisible { get; set; }
+    [ObservableProperty] public partial string PreviewSelectedCategory { get; set; } = string.Empty;
+    [ObservableProperty] public partial List<string> PreviewAvailableCategories { get; set; } = [];
 
     public MainViewModel(CharacterFacade characterFacade, ItemFacade itemFacade , NfcService nfcService)
     {
@@ -82,25 +100,23 @@ public partial class MainViewModel : ViewModelBase
 
                         if (Characters.Count == 0)
                         {
-                            await Shell.Current.DisplayAlertAsync("Error", "No characters found", "OK");
+                            await Shell.Current.DisplayAlertAsync("Error", "No characters found. Create one first.", "OK");
                             return;
                         }
 
-                        var characterNames = Characters.Select(c => c.Name).ToArray();
-                        var selectedName = await Shell.Current.DisplayActionSheetAsync("Who gets this item?", "Cancel",
-                            null, characterNames);
+                        var confirm = await ShowItemPreviewAsync(recievedItem);
 
-                        if (selectedName == "Cancel" || string.IsNullOrEmpty(selectedName))
+                        if (confirm && PreviewSelectedCharacter != null)
                         {
-                            return;
+                            recievedItem.CharacterId = PreviewSelectedCharacter.Id;
+                            recievedItem.ImagePath = PreviewSelectedImage;
+                            recievedItem.Category = PreviewSelectedCategory;
+
+                            await _itemFacade.SaveAsync(recievedItem);
+                            
+                            await Shell.Current.DisplayAlertAsync("Success",
+                                $"{recievedItem.Name} was added to {PreviewSelectedCharacter.Name}'s inventory!", "OK");
                         }
-
-                        var selectedCharacter = Characters.FirstOrDefault(c => c.Name == selectedName);
-                        recievedItem.CharacterId = selectedCharacter.Id;
-
-                        await _itemFacade.SaveAsync(recievedItem);
-                        await Shell.Current.DisplayAlertAsync("Success",
-                            $"{recievedItem.Name} was added to {selectedCharacter.Name}'s inventory!", "OK");
                     }
                     catch (Exception ex)
                     {
@@ -116,7 +132,7 @@ public partial class MainViewModel : ViewModelBase
                     await Shell.Current.DisplayAlertAsync("Error", errorMsg, "OK");
                 });
             }
-            );
+        );
     }
 
     [RelayCommand]
@@ -136,5 +152,71 @@ public partial class MainViewModel : ViewModelBase
     public async Task ScanQrFromMainAsync()
     {
         await Shell.Current.GoToAsync(nameof(QrScanPage));
+    }
+
+    private async Task<bool> ShowItemPreviewAsync(ItemModel item)
+    {
+        PreviewItem = item;
+        PreviewSelectedCharacter = Characters.FirstOrDefault();
+        
+        var defaultCategories = Enum.GetValues<ItemCategoriesEnum>().Select(e => e.ToString());
+        var dbCategories = await _itemFacade.GetAllCategories();
+        PreviewAvailableCategories = defaultCategories
+            .Union(dbCategories)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .ToList();
+            
+        PreviewSelectedCategory = string.IsNullOrWhiteSpace(item.Category) ? "Uncategorized" : item.Category;
+        
+        var defaultImgs = new[] { "armor.png", "sword.png", "potion.png" };
+        PreviewSelectedImage = defaultImgs[0];
+        
+        PreviewTemplateImages.Clear();
+        foreach (var img in defaultImgs)
+        {
+            PreviewTemplateImages.Add(new TemplateImageItem 
+            { 
+                ImagePath = img, 
+                IsSelected = img == PreviewSelectedImage 
+            });
+        }
+            
+        IsItemPreviewVisible = true;
+        _previewTcs = new TaskCompletionSource<bool>();
+        return await _previewTcs.Task;
+    }
+    
+    [RelayCommand] private void ConfirmItemPreview() { IsItemPreviewVisible = false; _previewTcs?.TrySetResult(true); }
+    [RelayCommand] private void CancelItemPreview() { IsItemPreviewVisible = false; _previewTcs?.TrySetResult(false); }
+
+    [RelayCommand] private void OpenCharacterSelect() => IsCharacterSelectVisible = true;
+    [RelayCommand] private void CloseCharacterSelect() => IsCharacterSelectVisible = false;
+
+    [RelayCommand] 
+    private void SelectCharacter(CharacterModel character) 
+    { 
+        PreviewSelectedCharacter = character; 
+        IsCharacterSelectVisible = false; 
+    }
+    
+    [RelayCommand] private void OpenPreviewCategorySelect() => IsPreviewCategorySelectVisible = true;
+    [RelayCommand] private void ClosePreviewCategorySelect() => IsPreviewCategorySelectVisible = false;
+
+    [RelayCommand] 
+    private void SelectPreviewCategory(string category) 
+    { 
+        PreviewSelectedCategory = category; 
+        IsPreviewCategorySelectVisible = false; 
+    }
+
+    [RelayCommand] 
+    private void SelectTemplateImage(TemplateImageItem selected)
+    {
+        foreach (var img in PreviewTemplateImages)
+        {
+            img.IsSelected = false;
+        }
+        selected.IsSelected = true;
+        PreviewSelectedImage = selected.ImagePath;
     }
 }
