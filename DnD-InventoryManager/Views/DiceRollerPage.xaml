@@ -49,28 +49,23 @@
 
         <Grid Grid.Row="2" VerticalOptions="Center" HorizontalOptions="Center">
             
-            <Border HeightRequest="280" WidthRequest="280" BackgroundColor="Transparent" 
-                    Stroke="{StaticResource Primary}" StrokeThickness="2"
-                    HorizontalOptions="Center" VerticalOptions="Center" Opacity="0.4">
-                <Border.StrokeShape><RoundRectangle CornerRadius="140" /></Border.StrokeShape>
-                <Border.Shadow>
-                    <Shadow Brush="{StaticResource Primary}" Offset="0,0" Radius="50" Opacity="0.8" />
-                </Border.Shadow>
-            </Border>
-            
-            <Border HeightRequest="250" WidthRequest="250" BackgroundColor="Transparent" 
-                    Stroke="{StaticResource Secondary}" StrokeThickness="3" StrokeDashArray="3,4"
-                    HorizontalOptions="Center" VerticalOptions="Center" Opacity="0.7">
-                <Border.StrokeShape><RoundRectangle CornerRadius="125" /></Border.StrokeShape>
+            <Border x:Name="ShockwaveRing"
+                    HeightRequest="180" WidthRequest="180" 
+                    BackgroundColor="Transparent"
+                    Stroke="{StaticResource Primary}" StrokeThickness="4"
+                    HorizontalOptions="Center" VerticalOptions="Center" 
+                    Opacity="0" ZIndex="0">
+                <Border.StrokeShape><RoundRectangle CornerRadius="90" /></Border.StrokeShape>
             </Border>
 
-            <Border HeightRequest="220" WidthRequest="220" 
+            <Border x:Name="DiceContainer"
+                    HeightRequest="200" WidthRequest="200" 
                     BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" StrokeThickness="1"
-                    HorizontalOptions="Center" VerticalOptions="Center">
-                <Border.StrokeShape><RoundRectangle CornerRadius="110" /></Border.StrokeShape>
+                    Stroke="{AppThemeBinding Light={StaticResource BorderLight}, Dark={StaticResource BorderDark}}" StrokeThickness="2"
+                    HorizontalOptions="Center" VerticalOptions="Center" ZIndex="1">
+                <Border.StrokeShape><RoundRectangle CornerRadius="32" /></Border.StrokeShape>
                 <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,10" Radius="20" Opacity="{AppThemeBinding Light=0.1, Dark=0.5}" />
+                    <Shadow Brush="Black" Offset="0,15" Radius="25" Opacity="{AppThemeBinding Light=0.15, Dark=0.5}" />
                 </Border.Shadow>
                 
                 <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="0">
@@ -83,15 +78,6 @@
                            TextColor="{StaticResource Secondary}" Margin="0,-5,0,0"/>
                 </VerticalStackLayout>
             </Border>
-            
-            <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,-45" Spacing="8">
-                <Border HeightRequest="24" WidthRequest="24" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light=Transparent, Dark={StaticResource SurfaceLight}}" VerticalOptions="Center">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
-                    <Label Text="📳" FontSize="14" HorizontalOptions="Center" VerticalOptions="Center" />
-                </Border>
-                <Label Text="Shake to roll" FontSize="14" FontAttributes="Italic" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" VerticalOptions="Center"/>
-            </HorizontalStackLayout>
-            
         </Grid>
 
         <Grid Grid.Row="3" ColumnDefinitions="Auto, *" ColumnSpacing="15" Margin="0,30,0,0">
@@ -103,6 +89,12 @@
             <Button Grid.Column="1" Text="ROLL THE DICE" FontSize="18" FontAttributes="Bold" CharacterSpacing="1"
                     BackgroundColor="{StaticResource Primary}" TextColor="White" 
                     Command="{Binding RollCommand}" CornerRadius="32" HeightRequest="64">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsRolling}" Value="True">
+                        <Setter Property="Opacity" Value="0.7" />
+                        <Setter Property="Scale" Value="0.95" />
+                    </DataTrigger>
+                </Button.Triggers>
                 <Button.Shadow>
                     <Shadow Brush="{StaticResource Primary}" Offset="0,6" Radius="12" Opacity="0.5" />
                 </Button.Shadow>

@@ -8,6 +8,37 @@ public partial class DiceRollerPage : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
+        
+        viewModel.OnRollStarted = () =>
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                ShockwaveRing.Opacity = 0;
+                ShockwaveRing.Scale = 1;
+
+                var moveUp = DiceContainer.TranslateToAsync(0, -50, 400, Easing.CubicOut);
+                var scaleUp = DiceContainer.ScaleToAsync(1.05, 400, Easing.CubicOut);
+
+                await Task.WhenAll(moveUp, scaleUp);
+            });
+        };
+
+        viewModel.OnRollFinished = () =>
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                var moveDown = DiceContainer.TranslateToAsync(0, 0, 150, Easing.SpringIn);
+                var scaleDown = DiceContainer.ScaleToAsync(1.0, 150, Easing.SpringIn);
+                
+                await Task.WhenAll(moveDown, scaleDown);
+
+                ShockwaveRing.Opacity = 0.8;
+                var expand = ShockwaveRing.ScaleToAsync(2.5, 400, Easing.CubicOut);
+                var fade = ShockwaveRing.FadeToAsync(0, 400, Easing.CubicOut);
+                
+                await Task.WhenAll(expand, fade);
+            });
+        };
     }
 
     protected override void OnAppearing()
