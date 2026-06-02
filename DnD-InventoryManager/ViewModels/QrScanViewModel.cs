@@ -1,6 +1,8 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnD_InventoryManager.Facades;
+using DnD_InventoryManager.Models;
 using DnD_InventoryManager.Services;
 using Exception = System.Exception;
 
@@ -24,6 +26,20 @@ public partial class QrScanViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _isDetecting;
+    
+    public ObservableCollection<CharacterModel> Characters { get; } = [];
+    
+    [ObservableProperty] public partial bool IsItemPreviewVisible { get; set; }
+    [ObservableProperty] public partial ItemModel? PreviewItem { get; set; }
+    [ObservableProperty] public partial CharacterModel? PreviewSelectedCharacter { get; set; }
+    [ObservableProperty] public partial string PreviewSelectedImage { get; set; } = string.Empty;
+    [ObservableProperty] public partial ObservableCollection<TemplateImageItem> PreviewTemplateImages { get; set; } = [];
+    private TaskCompletionSource<bool>? _previewTcs;
+
+    [ObservableProperty] public partial bool IsCharacterSelectVisible { get; set; }
+    [ObservableProperty] public partial bool IsPreviewCategorySelectVisible { get; set; }
+    [ObservableProperty] public partial string PreviewSelectedCategory { get; set; } = string.Empty;
+    [ObservableProperty] public partial List<string> PreviewAvailableCategories { get; set; } = [];
 
     public QrScanViewModel(QrService qrService, ItemFacade itemFacade, CharacterFacade characterFacade)
     {
@@ -54,73 +70,137 @@ public partial class QrScanViewModel : ViewModelBase
         }
 
         var item = result.Data;
-        
-        if (CharacterId == 0)
+
+        var confirm = await ShowItemPreviewAsync(item);
+
+        if (confirm && PreviewSelectedCharacter != null)
         {
-            var characters = await _characterFacade.GetAllAsync();
-                
-            if (characters.Count == 0)
+            item.CharacterId = PreviewSelectedCharacter.Id;
+            item.ImagePath = PreviewSelectedImage;
+            item.Category = PreviewSelectedCategory;
+
+            await _itemFacade.SaveAsync(item);
+            
+            try
             {
-                await Shell.Current.DisplayAlertAsync("Error", "You don't have any characters created to assign this to.", "OK");
-                StartScanning();
-                return;
+                Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(200));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Vibration failed: {ex.Message}");
             }
             
-            var characterNames = characters.Select(c => c.Name).ToArray();
-            
-            var selectedName = await Shell.Current.DisplayActionSheetAsync(
-                $"Where do you want to add {item.Name}?", 
-                "Cancel", 
-                null, 
-                characterNames);
-            
-            if (string.IsNullOrEmpty(selectedName) || selectedName == "Cancel")
+            await MainThread.InvokeOnMainThreadAsync(async () =>
             {
-                StartScanning();
-                return;
-            }
-            var selectedCharacter = characters.First(c => c.Name == selectedName);
-            item.CharacterId = selectedCharacter.Id;
+                await Shell.Current.DisplayAlertAsync(
+                    "Loot acquired!",
+                    $"Item \"{item.Name}\" was added to inventory.",
+                    "OK");
+                await Shell.Current.GoToAsync("..");
+            });
         }
         else
         {
-            item.CharacterId = CharacterId;
+            IsProcessing = false;
+            StartScanning();
+        }
+    }
+    
+    private async Task<bool> ShowItemPreviewAsync(ItemModel item)
+    {
+        var chars = await _characterFacade.GetAllAsync();
+        Characters.Clear();
+        foreach (var c in chars)
+        {
+            Characters.Add(c);
         }
 
-        var allCategories = await _itemFacade.GetCategoriesForCharacterAsync(item.CharacterId);
-        var selectedCategory = await Shell.Current.DisplayActionSheetAsync(
-            $"Choose category for the new item {item.Name}?", 
-            "Cancel", 
-            null, 
-            allCategories.ToArray()
-            );
+        if (Characters.Count == 0)
+        {
+            await Shell.Current.DisplayAlertAsync("Error", "You don't have any characters created to assign this to.", "OK");
+            return false;
+        }
+
+        PreviewItem = item;
+        
+        PreviewSelectedCharacter = CharacterId != 0 
+            ? Characters.FirstOrDefault(c => c.Id == CharacterId) ?? Characters.FirstOrDefault()
+            : Characters.FirstOrDefault();
+
+        var defaultCategories = Enum.GetValues<ItemCategoriesEnum>().Select(e => e.ToString());
+        var dbCategories = PreviewSelectedCharacter != null 
+            ? await _itemFacade.GetCategoriesForCharacterAsync(PreviewSelectedCharacter.Id) 
+            : [];
             
-        if (string.IsNullOrEmpty(selectedCategory) || selectedCategory == "Cancel")
-        {
-            StartScanning();
-            return;
-        }
-        item.Category = selectedCategory;
+        PreviewAvailableCategories = defaultCategories
+            .Union(dbCategories)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .ToList();
+            
+        PreviewSelectedCategory = string.IsNullOrWhiteSpace(item.Category) ? "Uncategorized" : item.Category;
         
-        await _itemFacade.SaveAsync(item);
+        var defaultImgs = new[] { "armor.png", "sword.png", "potion.png" };
+        PreviewSelectedImage = defaultImgs[0];
         
-        try
+        PreviewTemplateImages.Clear();
+        foreach (var img in defaultImgs)
         {
-            Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(200));
+            PreviewTemplateImages.Add(new TemplateImageItem 
+            { 
+                ImagePath = img, 
+                IsSelected = img == PreviewSelectedImage 
+            });
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Vibration failed: {ex.Message}");
-        }
+            
+        IsItemPreviewVisible = true;
+        _previewTcs = new TaskCompletionSource<bool>();
+        return await _previewTcs.Task;
+    }
+    
+    [RelayCommand] private void ConfirmItemPreview() { IsItemPreviewVisible = false; _previewTcs?.TrySetResult(true); }
+    [RelayCommand] private void CancelItemPreview() { IsItemPreviewVisible = false; _previewTcs?.TrySetResult(false); }
+
+    [RelayCommand] private void OpenCharacterSelect() => IsCharacterSelectVisible = true;
+    [RelayCommand] private void CloseCharacterSelect() => IsCharacterSelectVisible = false;
+    
+    [RelayCommand] 
+    private async Task SelectCharacterAsync(CharacterModel character) 
+    { 
+        PreviewSelectedCharacter = character; 
+        IsCharacterSelectVisible = false; 
         
-        await MainThread.InvokeOnMainThreadAsync(async () =>
+        var dbCategories = await _itemFacade.GetCategoriesForCharacterAsync(character.Id);
+        
+        PreviewAvailableCategories = Enum.GetValues<ItemCategoriesEnum>().Select(e => e.ToString())
+            .Union(dbCategories)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .ToList();
+            
+        if (!PreviewAvailableCategories.Contains(PreviewSelectedCategory))
         {
-            await Shell.Current.DisplayAlertAsync(
-                "Loot acquired!",
-                $"Item \"{item.Name}\" was added to inventory.",
-                "OK");
-            await Shell.Current.GoToAsync("..");
-        });
+            PreviewSelectedCategory = "Uncategorized";
+        }
+    }
+    
+    [RelayCommand] private void OpenPreviewCategorySelect() => IsPreviewCategorySelectVisible = true;
+    [RelayCommand] private void ClosePreviewCategorySelect() => IsPreviewCategorySelectVisible = false;
+
+    [RelayCommand] 
+    private void SelectPreviewCategory(string category) 
+    { 
+        PreviewSelectedCategory = category; 
+        IsPreviewCategorySelectVisible = false; 
+    }
+
+    [RelayCommand] 
+    private void SelectTemplateImage(TemplateImageItem selected)
+    {
+        foreach (var img in PreviewTemplateImages)
+        {
+            img.IsSelected = false;
+        }
+        selected.IsSelected = true;
+        PreviewSelectedImage = selected.ImagePath;
     }
     
     [RelayCommand]
