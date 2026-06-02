@@ -38,9 +38,9 @@ public class ItemFacade(
         await databaseService.DeleteAsync<ItemEntity>(id);
     }
 
-    public async Task<List<string>> GetAllCategories()
+    public async Task<List<string>> GetCategoriesForCharacterAsync(int characterId)
     {
-        return await databaseService.GetAllCategories();
+        return await databaseService.GetCategoriesForCharacterAsync(characterId);
     }
     
     public async Task<ItemModel> GetFromEquipmentApi(string index)
@@ -72,13 +72,18 @@ public class ItemFacade(
         return resp.Results;
     }
 
-    public async Task DeleteCategoryAndReassignAsync(string categoryToDelete, string fallbackCategory)
+    public async Task AddCategoryAsync(string categoryName, int characterId)
     {
-        await databaseService.ReassignCategoryAsync(categoryToDelete, fallbackCategory);
+        await databaseService.AddCategoryAsync(categoryName, characterId);
+    } 
+
+    public async Task DeleteCategoryAndReassignAsync(string categoryToDelete, string fallbackCategory, int characterId)
+    {
+        await databaseService.DeleteCategoryAndReassignAsync(categoryToDelete, fallbackCategory, characterId);
     }
 
-    public async Task RenameCategoryAsync(string oldCategory, string newCategory)
+    public async Task RenameCategoryAsync(string oldCategory, string newCategory, int characterId)
     {
-        await databaseService.RenameCategoryAsync(oldCategory, newCategory);
+        await databaseService.RenameCategoryAsync(oldCategory, newCategory, characterId);
     }
 }

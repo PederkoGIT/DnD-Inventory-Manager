@@ -87,7 +87,7 @@ public partial class QrScanViewModel : ViewModelBase
             item.CharacterId = CharacterId;
         }
 
-        var allCategories = await _itemFacade.GetAllCategories();
+        var allCategories = await _itemFacade.GetCategoriesForCharacterAsync(item.CharacterId);
         var selectedCategory = await Shell.Current.DisplayActionSheetAsync(
             $"Choose category for the new item {item.Name}?", 
             "Cancel", 

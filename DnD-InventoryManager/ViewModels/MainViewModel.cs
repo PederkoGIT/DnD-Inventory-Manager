@@ -160,7 +160,7 @@ public partial class MainViewModel : ViewModelBase
         PreviewSelectedCharacter = Characters.FirstOrDefault();
         
         var defaultCategories = Enum.GetValues<ItemCategoriesEnum>().Select(e => e.ToString());
-        var dbCategories = await _itemFacade.GetAllCategories();
+        var dbCategories = await _itemFacade.GetCategoriesForCharacterAsync(PreviewSelectedCharacter.Id);
         PreviewAvailableCategories = defaultCategories
             .Union(dbCategories)
             .Where(c => !string.IsNullOrWhiteSpace(c))
@@ -193,10 +193,21 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand] private void CloseCharacterSelect() => IsCharacterSelectVisible = false;
 
     [RelayCommand] 
-    private void SelectCharacter(CharacterModel character) 
+    private async Task SelectCharacterAsync(CharacterModel character) 
     { 
         PreviewSelectedCharacter = character; 
         IsCharacterSelectVisible = false; 
+        
+        var dbCategories = await _itemFacade.GetCategoriesForCharacterAsync(character.Id);
+        
+        PreviewAvailableCategories = dbCategories
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .ToList();
+            
+        if (!PreviewAvailableCategories.Contains(PreviewSelectedCategory))
+        {
+            PreviewSelectedCategory = "Uncategorized";
+        }
     }
     
     [RelayCommand] private void OpenPreviewCategorySelect() => IsPreviewCategorySelectVisible = true;

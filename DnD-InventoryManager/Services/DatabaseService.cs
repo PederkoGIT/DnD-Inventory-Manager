@@ -7,13 +7,31 @@ public class DatabaseService
 {
     private const string DbName = "DnDManager.db3";
     private readonly string _dbPath = Path.Combine(FileSystem.AppDataDirectory, DbName); 
+    
+    
+    
     public void Init()
     {
         Task.Run(async () =>
         {
             var connection = new SQLiteAsyncConnection(_dbPath);
             await connection.CreateTableAsync<CharacterEntity>();
-            await  connection.CreateTableAsync<ItemEntity>();
+            await connection.CreateTableAsync<ItemEntity>();
+            await connection.CreateTableAsync<CategoryEntity>();
+            
+            var categoryCount = await connection.Table<CategoryEntity>().CountAsync();
+            if (categoryCount == 0)
+            {
+                var systemCategories = new List<CategoryEntity>
+                {
+                    new() { Name = "Equipment", CharacterId = 0, IsSystem = true },
+                    new() { Name = "MagicItem", CharacterId = 0, IsSystem = true },
+                    new() { Name = "Uncategorized", CharacterId = 0, IsSystem = true }
+                };
+                
+                await connection.InsertAllAsync(systemCategories);
+            }
+            
             await connection.CloseAsync();
         });
     }
@@ -70,41 +88,54 @@ public class DatabaseService
         await connection.CloseAsync();
     }
 
-    public async Task<List<string>> GetAllCategories()
+    public async Task<List<string>> GetCategoriesForCharacterAsync(int characterId)
     {
         var connection = new SQLiteAsyncConnection(_dbPath);
-        var categories = await connection
-            .QueryScalarsAsync<string>($"SELECT DISTINCT({nameof(ItemEntity.Category)}) FROM Items ");
+        var categories = await connection.Table<CategoryEntity>()
+            .Where(c => c.CharacterId.Equals(characterId) || c.IsSystem)
+            .ToListAsync();
+
         await connection.CloseAsync();
-        return categories;
+        return categories.Select(c => c.Name).Distinct().ToList();
     }
 
-
-    public async Task ReassignCategoryAsync(string oldCategory, string newCategory)
+    public async Task AddCategoryAsync(string name, int characterId)
     {
         var connection = new SQLiteAsyncConnection(_dbPath);
-
-        var itemsToUpdate = await connection.Table<ItemEntity>().Where(i => i.Category.Equals(oldCategory)).ToListAsync();
-
-        if (itemsToUpdate.Any())
-        {
-            foreach (var item in itemsToUpdate)
-            {
-                item.Category = newCategory;
-            }
-
-            await connection.UpdateAllAsync(itemsToUpdate);
-        }
         
+        var exists = await connection.Table<CategoryEntity>()
+            .Where(c => c.Name == name && (c.CharacterId == characterId || c.CharacterId == 0))
+            .FirstOrDefaultAsync();
+
+        if (exists == null)
+        {
+            await connection.InsertAsync(new CategoryEntity
+            {
+                Name = name,
+                CharacterId = characterId,
+                IsSystem = false
+            });
+        }
         await connection.CloseAsync();
     }
     
-    public async Task RenameCategoryAsync(string oldCategory, string newCategory)
+    
+    public async Task RenameCategoryAsync(string oldCategory, string newCategory, int characterId)
     {
         var connection = new SQLiteAsyncConnection(_dbPath);
     
+        var categoryToRename = await connection.Table<CategoryEntity>()
+            .Where(c => c.Name == oldCategory && c.CharacterId == characterId && c.IsSystem == false)
+            .FirstOrDefaultAsync();
+
+        if (categoryToRename != null)
+        {
+            categoryToRename.Name = newCategory;
+            await connection.UpdateAsync(categoryToRename);
+        }
+
         var itemsToUpdate = await connection.Table<ItemEntity>()
-            .Where(e => e.Category == oldCategory)
+            .Where(e => e.Category == oldCategory && e.CharacterId == characterId)
             .ToListAsync();
 
         if (itemsToUpdate.Any())
@@ -113,10 +144,40 @@ public class DatabaseService
             {
                 item.Category = newCategory;
             }
-        
             await connection.UpdateAllAsync(itemsToUpdate);
         }
     
         await connection.CloseAsync();
     }
+
+    public async Task DeleteCategoryAndReassignAsync(string oldCategory, string newCategory, int characterId)
+    {
+        var connection = new SQLiteAsyncConnection(_dbPath);
+        
+        var categoryToDelete = await connection.Table<CategoryEntity>()
+            .Where(c => c.Name == oldCategory && c.CharacterId == characterId && c.IsSystem == false)
+            .FirstOrDefaultAsync();
+
+        if (categoryToDelete != null)
+        {
+            await connection.DeleteAsync(categoryToDelete);
+        }
+        
+        var itemsToUpdate = await connection.Table<ItemEntity>()
+            .Where(i => i.Category == oldCategory && i.CharacterId == characterId)
+            .ToListAsync();
+
+        if (itemsToUpdate.Any())
+        {
+            foreach (var item in itemsToUpdate)
+            {
+                item.Category = newCategory;
+            }
+            await connection.UpdateAllAsync(itemsToUpdate);
+        }
+        
+        await connection.CloseAsync();
+    }
+    
+    
 }

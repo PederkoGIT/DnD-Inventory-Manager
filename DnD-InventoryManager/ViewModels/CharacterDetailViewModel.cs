@@ -152,7 +152,7 @@ public partial class CharacterDetailViewModel(
                     {
                         IsWaitingForNfc = false;
 
-                        var allCategories = await itemFacade.GetAllCategories();
+                        var allCategories = await itemFacade.GetCategoriesForCharacterAsync(Character.Id);
                         var selectedCategory = await Shell.Current.DisplayActionSheetAsync(
                             $"Choose category for the new item {recievedItem.Name}?", 
                             "Cancel", 

@@ -50,7 +50,7 @@ public partial class ItemEditViewModel(
     public async Task LoadDataAsync()
     {
         var defaultCategories = Enum.GetValues<ItemCategoriesEnum>().Select(e => e.ToString());
-        var dbCategories = await itemFacade.GetAllCategories();
+        var dbCategories = await itemFacade.GetCategoriesForCharacterAsync(ItemModel.CharacterId);
     
         AllCategories = defaultCategories.Union(dbCategories)
             .Where(c => !string.IsNullOrWhiteSpace(c))
@@ -152,12 +152,12 @@ public partial class ItemEditViewModel(
 
         foreach (var rename in _pendingCategoryRenames)
         {
-            await itemFacade.RenameCategoryAsync(rename.Key, rename.Value);
+            await itemFacade.RenameCategoryAsync(rename.Key, rename.Value, ItemModel.CharacterId);
         }
         
         foreach (var categoryToDelete in _pendingCategoryDeletions)
         {
-            await itemFacade.DeleteCategoryAndReassignAsync(categoryToDelete, "Uncategorized");
+            await itemFacade.DeleteCategoryAndReassignAsync(categoryToDelete, "Uncategorized", ItemModel.CharacterId);
         }
         
         _pendingCategoryDeletions.Clear();
@@ -212,6 +212,8 @@ public partial class ItemEditViewModel(
             AllCategories.Add(newCategoryName.Trim());
             OnPropertyChanged(nameof(AllCategories));
             NewCategory = newCategoryName.Trim();
+
+            await itemFacade.AddCategoryAsync(newCategoryName, ItemModel.CharacterId);
         }
     }
     
